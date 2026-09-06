@@ -31,6 +31,10 @@ export async function PATCH(
     const body = await req.json();
     const data: Record<string, unknown> = {};
 
+    if (body.status && ['ACTIVE', 'RESERVED', 'PENDING_EXCHANGE', 'SOLD', 'TRADED', 'ARCHIVED'].includes(body.status)) {
+      data.status = body.status;
+    }
+
     if (body.promote === 'FEATURED') {
       data.isFeatured = true;
       data.featuredUntil = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);

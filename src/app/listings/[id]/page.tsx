@@ -240,9 +240,22 @@ export default function ListingDetailPage() {
 
         </div>
 
-        {/* Right Column: Pricing, Action Triggers & Seller Info */}
         <div className="lg:col-span-5 space-y-6">
           
+          {/* Quick Dashboard shortcut if user owns listing */}
+          <div className="bg-indigo-900 text-white p-4 rounded-3xl flex items-center justify-between shadow-md">
+            <div>
+              <p className="text-xs font-bold text-indigo-200 uppercase tracking-wider">Owner Controls</p>
+              <p className="text-xs font-semibold text-white mt-0.5">Manage status, price drops & boosts</p>
+            </div>
+            <Link
+              href="/dashboard"
+              className="px-3.5 py-2 bg-white text-indigo-950 font-black rounded-xl text-xs hover:bg-indigo-50 transition-colors"
+            >
+              Manage Item →
+            </Link>
+          </div>
+
           {/* Main Price & Action Card */}
           <div className="bg-white p-6 rounded-3xl border border-gray-200/80 shadow-md space-y-6">
             <div>
