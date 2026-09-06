@@ -38,28 +38,30 @@ function ListingsContent() {
   const [posted, setPosted] = useState(searchParams.get('posted') || '');
   const [featured, setFeatured] = useState(searchParams.get('featured') === '1');
 
+  // Keep state in sync with URL searchParams (e.g. when navigating or clicking Navbar search/category buttons)
+  useEffect(() => {
+    setQuery(searchParams.get('q') || '');
+    setListingType(searchParams.get('type') || '');
+    setExchangeType(searchParams.get('exchange') || '');
+    setCondition(searchParams.get('condition') || '');
+    setMinPrice(searchParams.get('minPrice') || '');
+    setMaxPrice(searchParams.get('maxPrice') || '');
+    setCity(searchParams.get('city') || '');
+    setSort(searchParams.get('sort') || 'newest');
+    setVerified(searchParams.get('verified') === '1');
+    setShipping(searchParams.get('shipping') === '1');
+    setPosted(searchParams.get('posted') || '');
+    setFeatured(searchParams.get('featured') === '1');
+  }, [searchParams]);
+
   useEffect(() => {
     fetchFilteredListings();
-  }, [searchParams, sort]);
+  }, [searchParams]);
 
   const fetchFilteredListings = async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams();
-      if (query) params.set('q', query);
-      if (listingType) params.set('type', listingType);
-      if (exchangeType) params.set('exchange', exchangeType);
-      if (condition) params.set('condition', condition);
-      if (minPrice) params.set('minPrice', minPrice);
-      if (maxPrice) params.set('maxPrice', maxPrice);
-      if (city) params.set('city', city);
-      if (sort) params.set('sort', sort);
-      if (verified) params.set('verified', '1');
-      if (shipping) params.set('shipping', '1');
-      if (posted) params.set('posted', posted);
-      if (featured) params.set('featured', '1');
-
-      const res = await fetch(`/api/listings?${params.toString()}`);
+      const res = await fetch(`/api/listings?${searchParams.toString()}`);
       if (res.ok) {
         const data = await res.json();
         setListings(data.listings || []);
@@ -71,19 +73,32 @@ function ListingsContent() {
     }
   };
 
-  const handleApplyFilters = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
+  const updateFiltersInUrl = (overrideParams?: Record<string, string>) => {
     const params = new URLSearchParams();
-    if (query.trim()) params.set('q', query.trim());
-    if (listingType) params.set('type', listingType);
-    if (exchangeType) params.set('exchange', exchangeType);
-    if (condition) params.set('condition', condition);
-    if (minPrice) params.set('minPrice', minPrice);
-    if (maxPrice) params.set('maxPrice', maxPrice);
-    if (city.trim()) params.set('city', city.trim());
-    if (sort) params.set('sort', sort);
+    const currentQuery = overrideParams && 'q' in overrideParams ? overrideParams.q : query;
+    const currentType = overrideParams && 'type' in overrideParams ? overrideParams.type : listingType;
+    const currentExchange = overrideParams && 'exchange' in overrideParams ? overrideParams.exchange : exchangeType;
+    const currentCondition = overrideParams && 'condition' in overrideParams ? overrideParams.condition : condition;
+    const currentMin = overrideParams && 'minPrice' in overrideParams ? overrideParams.minPrice : minPrice;
+    const currentMax = overrideParams && 'maxPrice' in overrideParams ? overrideParams.maxPrice : maxPrice;
+    const currentCity = overrideParams && 'city' in overrideParams ? overrideParams.city : city;
+    const currentSort = overrideParams && 'sort' in overrideParams ? overrideParams.sort : sort;
+
+    if (currentQuery.trim()) params.set('q', currentQuery.trim());
+    if (currentType) params.set('type', currentType);
+    if (currentExchange) params.set('exchange', currentExchange);
+    if (currentCondition) params.set('condition', currentCondition);
+    if (currentMin) params.set('minPrice', currentMin);
+    if (currentMax) params.set('maxPrice', currentMax);
+    if (currentCity.trim()) params.set('city', currentCity.trim());
+    if (currentSort && currentSort !== 'newest') params.set('sort', currentSort);
 
     router.push(`/listings?${params.toString()}`);
+  };
+
+  const handleApplyFilters = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    updateFiltersInUrl();
     setMobileFilterOpen(false);
   };
 
@@ -97,6 +112,7 @@ function ListingsContent() {
     setCity('');
     setSort('newest');
     router.push('/listings');
+    setMobileFilterOpen(false);
   };
 
   const FilterSidebar = () => (
@@ -115,7 +131,10 @@ function ListingsContent() {
             <button
               key={cat.val}
               type="button"
-              onClick={() => setListingType(cat.val)}
+              onClick={() => {
+                setListingType(cat.val);
+                updateFiltersInUrl({ type: cat.val });
+              }}
               className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
                 listingType === cat.val
                   ? 'bg-indigo-600 text-white shadow-sm'
@@ -144,7 +163,10 @@ function ListingsContent() {
             <button
               key={mode.val}
               type="button"
-              onClick={() => setExchangeType(mode.val)}
+              onClick={() => {
+                setExchangeType(mode.val);
+                updateFiltersInUrl({ exchange: mode.val });
+              }}
               className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
                 exchangeType === mode.val
                   ? 'bg-purple-600 text-white shadow-sm'
@@ -165,7 +187,10 @@ function ListingsContent() {
         </label>
         <select
           value={condition}
-          onChange={(e) => setCondition(e.target.value)}
+          onChange={(e) => {
+            setCondition(e.target.value);
+            updateFiltersInUrl({ condition: e.target.value });
+          }}
           className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs text-gray-800 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
         >
           <option value="">Any Condition</option>
@@ -188,6 +213,7 @@ function ListingsContent() {
             placeholder="Min"
             value={minPrice}
             onChange={(e) => setMinPrice(e.target.value)}
+            onBlur={() => updateFiltersInUrl()}
             className="w-1/2 px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs text-gray-800 focus:outline-none focus:border-indigo-500"
           />
           <span className="text-gray-400 text-xs">-</span>
@@ -196,6 +222,7 @@ function ListingsContent() {
             placeholder="Max"
             value={maxPrice}
             onChange={(e) => setMaxPrice(e.target.value)}
+            onBlur={() => updateFiltersInUrl()}
             className="w-1/2 px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs text-gray-800 focus:outline-none focus:border-indigo-500"
           />
         </div>
@@ -211,6 +238,7 @@ function ListingsContent() {
           placeholder="e.g. New York, Austin, Boston"
           value={city}
           onChange={(e) => setCity(e.target.value)}
+          onBlur={() => updateFiltersInUrl()}
           className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs text-gray-800 focus:outline-none focus:border-indigo-500"
         />
       </div>
@@ -265,7 +293,10 @@ function ListingsContent() {
           <div className="relative">
             <select
               value={sort}
-              onChange={(e) => setSort(e.target.value)}
+              onChange={(e) => {
+                setSort(e.target.value);
+                updateFiltersInUrl({ sort: e.target.value });
+              }}
               className="px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs font-semibold text-gray-700 focus:outline-none focus:border-indigo-500 cursor-pointer"
             >
               <option value="newest">Newest First</option>
