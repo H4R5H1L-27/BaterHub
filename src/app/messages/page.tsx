@@ -33,6 +33,7 @@ function MessagesContent() {
   const [currentUser, setCurrentUser] = useState<UserSummary | null>(null);
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const previousMessageCount = useRef<number>(0);
 
   // 1. Fetch current user and conversations
@@ -44,6 +45,28 @@ function MessagesContent() {
         setCurrentUser(uData.user);
       }
 
+      // If initialRecipientId is present in URL, ensure a conversation exists
+      if (initialRecipientId) {
+        try {
+          const createRes = await fetch('/api/conversations', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              recipientId: initialRecipientId,
+              listingId: initialListingId || undefined,
+            }),
+          });
+          if (createRes.ok) {
+            const cData = await createRes.json();
+            if (cData.conversation) {
+              setSelectedConversation(cData.conversation);
+            }
+          }
+        } catch (e) {
+          console.error('Failed to create/fetch direct conversation:', e);
+        }
+      }
+
       const res = await fetch('/api/conversations');
       if (res.ok) {
         const data = await res.json();
@@ -51,16 +74,18 @@ function MessagesContent() {
         setConversations(convList);
 
         // If a specific conversation or recipient was targeted via query params
-        if (convList.length > 0 && !selectedConversation) {
-          if (initialListingId || initialRecipientId) {
-            const match = convList.find((c) =>
-              (initialListingId && c.listing?.id === initialListingId) ||
-              (initialRecipientId && (c.participantA.id === initialRecipientId || c.participantB.id === initialRecipientId))
-            );
-            setSelectedConversation(match || convList[0]);
-          } else {
-            setSelectedConversation(convList[0]);
-          }
+        if (convList.length > 0) {
+          setSelectedConversation((current) => {
+            if (current) return current;
+            if (initialListingId || initialRecipientId) {
+              const match = convList.find((c) =>
+                (initialListingId && c.listing?.id === initialListingId) ||
+                (initialRecipientId && (c.participantA.id === initialRecipientId || c.participantB.id === initialRecipientId))
+              );
+              return match || convList[0];
+            }
+            return convList[0];
+          });
         }
       }
     } catch (err) {
@@ -72,7 +97,7 @@ function MessagesContent() {
 
   useEffect(() => {
     fetchConversations();
-  }, []);
+  }, [initialRecipientId, initialListingId]);
 
   // 2. Poll messages for selected conversation
   useEffect(() => {

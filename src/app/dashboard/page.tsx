@@ -25,6 +25,7 @@ import { ListingItem } from '@/lib/types';
 
 export default function MyListingsDashboard() {
   const [listings, setListings] = useState<any[]>([]);
+  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [editingPriceId, setEditingPriceId] = useState<string | null>(null);
   const [newPrice, setNewPrice] = useState('');
@@ -32,7 +33,17 @@ export default function MyListingsDashboard() {
   const [activeTab, setActiveTab] = useState<'ALL' | 'ACTIVE' | 'RESERVED' | 'SOLD' | 'TRADED'>('ALL');
 
   useEffect(() => {
-    fetchMyListings();
+    fetch('/api/auth/me')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (d?.user) {
+          setUser(d.user);
+          fetchMyListings();
+        } else {
+          setLoading(false);
+        }
+      })
+      .catch(() => setLoading(false));
   }, []);
 
   const fetchMyListings = async () => {
@@ -133,6 +144,26 @@ export default function MyListingsDashboard() {
   const totalViews = listings.reduce((acc, curr) => acc + (curr.viewsCount || 0), 0);
   const totalOffers = listings.reduce((acc, curr) => acc + (curr._count?.cashOffers || 0) + (curr._count?.barterProposalsAsTarget || 0), 0);
   const activeCount = listings.filter((i) => i.status === 'ACTIVE').length;
+
+  if (!loading && !user) {
+    return (
+      <div className="max-w-md mx-auto px-4 py-20 text-center space-y-4">
+        <div className="w-14 h-14 rounded-3xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto">
+          <SlidersHorizontal className="w-7 h-7" />
+        </div>
+        <h2 className="text-xl font-bold text-gray-900">Sign in to manage your items</h2>
+        <p className="text-xs text-gray-500">
+          Only the owner of a listing can access its management controls, update prices, and boost visibility.
+        </p>
+        <Link
+          href="/login"
+          className="inline-block px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-bold hover:bg-indigo-700 transition-colors shadow-sm"
+        >
+          Sign In / Switch Persona
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">

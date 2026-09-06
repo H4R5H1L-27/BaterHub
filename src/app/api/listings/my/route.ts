@@ -12,13 +12,10 @@ export async function GET(req: NextRequest) {
       if (demoEmail) {
         user = await prisma.user.findUnique({ where: { email: demoEmail } });
       }
-      if (!user) {
-        user = await prisma.user.findFirst();
-      }
     }
 
     if (!user) {
-      return NextResponse.json({ listings: [] });
+      return NextResponse.json({ listings: [], error: 'Unauthorized' }, { status: 401 });
     }
 
     const listings = await prisma.listing.findMany({

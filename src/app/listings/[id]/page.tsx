@@ -31,6 +31,7 @@ export default function ListingDetailPage() {
   const router = useRouter();
 
   const [listing, setListing] = useState<ListingItem | null>(null);
+  const [currentUser, setCurrentUser] = useState<{ id: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
@@ -39,6 +40,14 @@ export default function ListingDetailPage() {
   const [barterModalOpen, setBarterModalOpen] = useState(false);
 
   useEffect(() => {
+    // Fetch logged in user
+    fetch('/api/auth/me')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (d?.user) setCurrentUser(d.user);
+      })
+      .catch(() => {});
+
     const fetchListing = async () => {
       try {
         const res = await fetch(`/api/listings/${id}`);
@@ -242,19 +251,21 @@ export default function ListingDetailPage() {
 
         <div className="lg:col-span-5 space-y-6">
           
-          {/* Quick Dashboard shortcut if user owns listing */}
-          <div className="bg-indigo-900 text-white p-4 rounded-3xl flex items-center justify-between shadow-md">
-            <div>
-              <p className="text-xs font-bold text-indigo-200 uppercase tracking-wider">Owner Controls</p>
-              <p className="text-xs font-semibold text-white mt-0.5">Manage status, price drops & boosts</p>
+          {/* Quick Dashboard shortcut only if logged-in user owns listing */}
+          {currentUser && currentUser.id === listing.userId && (
+            <div className="bg-indigo-900 text-white p-4 rounded-3xl flex items-center justify-between shadow-md">
+              <div>
+                <p className="text-xs font-bold text-indigo-200 uppercase tracking-wider">Owner Controls</p>
+                <p className="text-xs font-semibold text-white mt-0.5">Manage status, price drops & boosts</p>
+              </div>
+              <Link
+                href="/dashboard"
+                className="px-3.5 py-2 bg-white text-indigo-950 font-black rounded-xl text-xs hover:bg-indigo-50 transition-colors"
+              >
+                Manage Item →
+              </Link>
             </div>
-            <Link
-              href="/dashboard"
-              className="px-3.5 py-2 bg-white text-indigo-950 font-black rounded-xl text-xs hover:bg-indigo-50 transition-colors"
-            >
-              Manage Item →
-            </Link>
-          </div>
+          )}
 
           {/* Main Price & Action Card */}
           <div className="bg-white p-6 rounded-3xl border border-gray-200/80 shadow-md space-y-6">
@@ -289,36 +300,50 @@ export default function ListingDetailPage() {
 
             {/* CTAs */}
             <div className="space-y-3">
-              {/* If hybrid or barter only: show Propose Barter button */}
-              {listing.exchangeType !== 'CASH_ONLY' && (
-                <button
-                  onClick={() => setBarterModalOpen(true)}
-                  className="w-full py-3.5 px-4 bg-purple-600 hover:bg-purple-700 active:bg-purple-800 text-white rounded-2xl font-bold text-sm shadow-md shadow-purple-600/20 flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
-                >
-                  <Repeat className="w-4 h-4" />
-                  <span>Propose Barter / Item Swap</span>
-                </button>
-              )}
+              {currentUser && currentUser.id === listing.userId ? (
+                <div className="p-3 bg-indigo-50 border border-indigo-100 rounded-2xl text-center space-y-2">
+                  <p className="text-xs font-bold text-indigo-900">This is your posted listing</p>
+                  <Link
+                    href="/dashboard"
+                    className="block w-full py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-bold hover:bg-indigo-700 transition-colors"
+                  >
+                    Go to Management Desk
+                  </Link>
+                </div>
+              ) : (
+                <>
+                  {/* If hybrid or barter only: show Propose Barter button */}
+                  {listing.exchangeType !== 'CASH_ONLY' && (
+                    <button
+                      onClick={() => setBarterModalOpen(true)}
+                      className="w-full py-3.5 px-4 bg-purple-600 hover:bg-purple-700 active:bg-purple-800 text-white rounded-2xl font-bold text-sm shadow-md shadow-purple-600/20 flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
+                    >
+                      <Repeat className="w-4 h-4" />
+                      <span>Propose Barter / Item Swap</span>
+                    </button>
+                  )}
 
-              {/* If cash only or hybrid: show Make Cash Offer button */}
-              {listing.exchangeType !== 'BARTER_ONLY' && (
-                <button
-                  onClick={() => setOfferModalOpen(true)}
-                  className="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white rounded-2xl font-bold text-sm shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
-                >
-                  <DollarSign className="w-4 h-4" />
-                  <span>Make Cash Offer</span>
-                </button>
-              )}
+                  {/* If cash only or hybrid: show Make Cash Offer button */}
+                  {listing.exchangeType !== 'BARTER_ONLY' && (
+                    <button
+                      onClick={() => setOfferModalOpen(true)}
+                      className="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white rounded-2xl font-bold text-sm shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
+                    >
+                      <DollarSign className="w-4 h-4" />
+                      <span>Make Cash Offer</span>
+                    </button>
+                  )}
 
-              {/* Message Seller */}
-              <button
-                onClick={handleStartChat}
-                className="w-full py-3 px-4 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 transition-colors"
-              >
-                <MessageSquare className="w-4 h-4 text-gray-500" />
-                <span>Chat with Seller</span>
-              </button>
+                  {/* Message Seller */}
+                  <button
+                    onClick={handleStartChat}
+                    className="w-full py-3 px-4 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 transition-colors"
+                  >
+                    <MessageSquare className="w-4 h-4 text-gray-500" />
+                    <span>Chat with Seller</span>
+                  </button>
+                </>
+              )}
             </div>
 
             {/* Handover & Delivery Options */}
