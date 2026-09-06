@@ -1,8 +1,38 @@
-﻿# BarterHub — Full-Stack OLX-Inspired Product & Book Exchange Platform
+# BarterHub — Full-Stack OLX-Inspired Product & Book Exchange Platform
 
 ![Next.js](https://img.shields.io/badge/Next.js-14.2-black?logo=next.js) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql&logoColor=white) ![Prisma](https://img.shields.io/badge/Prisma-5.22-2D3748?logo=prisma) ![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-3.4-06B6D4?logo=tailwindcss)
 
 A production-grade circular classifieds marketplace for buying, selling, and swapping second-hand books, academic textbooks, and tech gear.
+
+---
+
+## 📸 Screenshots & Highlights
+
+<div align="center">
+
+### Marketplace Homepage
+![BarterHub Homepage](public/screenshots/homepage.png)
+*Modern marketplace design featuring dynamic search bar, categories grid, featured items, and quick action bar.*
+
+<br/>
+
+### Browse & Faceted Search
+![Browse & Search](public/screenshots/browse.png)
+*Advanced filtering by category, price, location, condition, and exchange type.*
+
+<br/>
+
+### Product Details & Trade Actions
+![Product Detail](public/screenshots/detail.png)
+*Detailed item views with multi-image gallery, condition details, trade proposal tools, and seller trust stats.*
+
+<br/>
+
+### Authentication & Persona Switcher
+![Login & Persona Switcher](public/screenshots/login.png)
+*One-click test persona switcher for frictionless trade side testing.*
+
+</div>
 
 ---
 
