@@ -36,19 +36,17 @@ A production-grade circular classifieds marketplace for buying, selling, and swa
 
 ---
 
-## Inspired by OLX — Upgraded Far Beyond
+## ✨ Core Features & Platform Capabilities
 
-This project started as a clone of the [sijeeshmiziha/olx](https://github.com/sijeeshmiziha/olx) reference (React.js + Firebase SPA) and has been fully rebuilt as a production-grade full-stack platform.
-
-| Feature | Base OLX Clone | BarterHub |
-|---|---|---|
-| **Architecture** | Client-side React 17 + Firebase | Next.js 14 App Router, TypeScript, PostgreSQL, Prisma |
-| **Exchange Modes** | Cash only | Cash, True Barter (Item-for-Item), Hybrid (Item + Cash Top-Up) |
-| **Negotiation** | Static chat | In-thread live offer cards with accept/counter/decline |
-| **Academic Engine** | None | ISBN, course code, academic subject, annotation flags |
-| **Trust & Safety** | None | Mutual 6-digit handover codes, verified dual-sided reviews |
-| **Search** | Basic text | Faceted filters, voice search, trending and saved searches |
-| **Testing** | Manual signup | 1-click persona switcher for both trade sides |
+| Feature | Description |
+|---|---|
+| **Architecture** | Built on Next.js 14 App Router, TypeScript 5, PostgreSQL 16, and Prisma ORM |
+| **Exchange Modes** | Support for Cash Sales, True Barter (Item-for-Item), and Hybrid Deals (Item + Cash Top-Up) |
+| **Live Negotiation** | Interactive in-thread negotiation with live offer cards for accepting, countering, or declining |
+| **Academic Engine** | Specialized metadata for books: ISBN lookup, course code, academic subject, and annotation flags |
+| **Trust & Safety** | Security features including 6-digit exchange verification codes and dual-sided reviews |
+| **Search & Discovery** | Multi-faceted filter system, voice-assisted search, trending searches, and saved query alerts |
+| **Persona Switcher** | Instant 1-click test persona switcher on authentication for quick demo testing |
 
 ---
 
