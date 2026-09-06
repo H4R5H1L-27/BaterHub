@@ -268,13 +268,13 @@ export default function ListingDetailPage() {
           )}
 
           {/* Main Price & Action Card */}
-          <div className="bg-white p-6 rounded-3xl border border-gray-200/80 shadow-md space-y-6">
+          <div className="bg-surface-container-lowest p-6 sm:p-8 rounded-3xl border border-outline-variant/30 shadow-sm space-y-6">
             <div>
-              <h1 className="text-2xl font-black text-gray-900 tracking-tight leading-snug">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-on-surface tracking-tight leading-snug">
                 {listing.title}
               </h1>
-              <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
-                <MapPin className="w-3.5 h-3.5 text-gray-400" />
+              <div className="flex items-center gap-2 mt-2 text-xs text-on-surface-variant">
+                <MapPin className="w-3.5 h-3.5 text-outline" />
                 <span>{listing.city}, {listing.state}</span>
                 <span>•</span>
                 <span>{listing.viewsCount} views</span>
@@ -282,17 +282,17 @@ export default function ListingDetailPage() {
             </div>
 
             {/* Price section */}
-            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-baseline justify-between">
+            <div className="p-4 bg-surface-container-low rounded-2xl border border-outline-variant/30 flex items-baseline justify-between">
               <div>
-                <span className="text-xs text-gray-400 font-semibold uppercase tracking-wider block">
-                  {listing.exchangeType === 'BARTER_ONLY' ? 'Exchange Mode' : 'Asking Price'}
+                <span className="text-xs text-outline font-bold uppercase tracking-wider block">
+                  {listing.exchangeType === 'BARTER_ONLY' ? 'Exchange Mode' : 'Asking Valuation'}
                 </span>
-                <span className="text-3xl font-black text-gray-900">
+                <span className="text-3xl font-extrabold text-on-surface">
                   {formatPrice(listing.price, listing.currency)}
                 </span>
               </div>
               {listing.isNegotiable && listing.exchangeType !== 'BARTER_ONLY' && (
-                <span className="text-xs font-semibold text-emerald-700 bg-emerald-100/70 px-2.5 py-1 rounded-full">
+                <span className="text-xs font-bold text-primary bg-primary-fixed px-3 py-1 rounded-full">
                   Price Negotiable
                 </span>
               )}
@@ -301,11 +301,11 @@ export default function ListingDetailPage() {
             {/* CTAs */}
             <div className="space-y-3">
               {currentUser && currentUser.id === listing.userId ? (
-                <div className="p-3 bg-indigo-50 border border-indigo-100 rounded-2xl text-center space-y-2">
-                  <p className="text-xs font-bold text-indigo-900">This is your posted listing</p>
+                <div className="p-4 bg-primary-fixed/30 border border-primary/20 rounded-2xl text-center space-y-2">
+                  <p className="text-xs font-bold text-primary">You are the owner of this listing</p>
                   <Link
                     href="/dashboard"
-                    className="block w-full py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-bold hover:bg-indigo-700 transition-colors"
+                    className="block w-full py-2.5 bg-primary text-white rounded-full text-xs font-bold hover:bg-primary-container shadow-lift transition-all"
                   >
                     Go to Management Desk
                   </Link>
@@ -316,10 +316,10 @@ export default function ListingDetailPage() {
                   {listing.exchangeType !== 'CASH_ONLY' && (
                     <button
                       onClick={() => setBarterModalOpen(true)}
-                      className="w-full py-3.5 px-4 bg-purple-600 hover:bg-purple-700 active:bg-purple-800 text-white rounded-2xl font-bold text-sm shadow-md shadow-purple-600/20 flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
+                      className="w-full py-3.5 px-4 bg-primary hover:bg-primary-container text-white rounded-full font-bold text-sm shadow-lift flex items-center justify-center gap-2 transition-all transform hover:-translate-y-0.5"
                     >
                       <Repeat className="w-4 h-4" />
-                      <span>Propose Barter / Item Swap</span>
+                      <span>Make Barter Proposal</span>
                     </button>
                   )}
 
@@ -327,7 +327,7 @@ export default function ListingDetailPage() {
                   {listing.exchangeType !== 'BARTER_ONLY' && (
                     <button
                       onClick={() => setOfferModalOpen(true)}
-                      className="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white rounded-2xl font-bold text-sm shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
+                      className="w-full py-3.5 px-4 bg-secondary hover:bg-secondary-container text-white rounded-full font-bold text-sm shadow-lift flex items-center justify-center gap-2 transition-all transform hover:-translate-y-0.5"
                     >
                       <DollarSign className="w-4 h-4" />
                       <span>Make Cash Offer</span>
@@ -337,23 +337,23 @@ export default function ListingDetailPage() {
                   {/* Message Seller */}
                   <button
                     onClick={handleStartChat}
-                    className="w-full py-3 px-4 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 transition-colors"
+                    className="w-full py-3 px-4 bg-surface-container-low hover:bg-surface-container text-on-surface rounded-full font-bold text-sm flex items-center justify-center gap-2 transition-colors border border-outline-variant/30"
                   >
-                    <MessageSquare className="w-4 h-4 text-gray-500" />
-                    <span>Chat with Seller</span>
+                    <MessageSquare className="w-4 h-4 text-primary" />
+                    <span>Chat with Trader</span>
                   </button>
                 </>
               )}
             </div>
 
             {/* Handover & Delivery Options */}
-            <div className="pt-4 border-t border-gray-100 space-y-2 text-xs text-gray-600">
+            <div className="pt-4 border-t border-outline-variant/30 space-y-2 text-xs text-on-surface-variant">
               <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-indigo-600 flex-shrink-0" />
-                <span>{listing.pickupAvailable ? 'Safe local public meetup available' : 'Local pickup unavailable'}</span>
+                <MapPin className="w-4 h-4 text-primary shrink-0" />
+                <span>{listing.pickupAvailable ? 'Safe local campus meetup available' : 'Local pickup unavailable'}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Truck className="w-4 h-4 text-indigo-600 flex-shrink-0" />
+                <Truck className="w-4 h-4 text-primary shrink-0" />
                 <span>
                   {listing.shippingAvailable 
                     ? `Shipping available (${formatPrice(listing.shippingCost)})` 
@@ -364,9 +364,9 @@ export default function ListingDetailPage() {
           </div>
 
           {/* Seller Trust Profile Card */}
-          <div className="bg-white p-6 rounded-3xl border border-gray-200/80 shadow-sm space-y-4">
-            <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-              Seller & Trader Profile
+          <div className="bg-surface-container-lowest p-6 sm:p-7 rounded-3xl border border-outline-variant/30 shadow-sm space-y-4">
+            <h4 className="text-xs font-bold text-outline uppercase tracking-wider">
+              Trader Reputation Dossier
             </h4>
 
             <div className="flex items-center gap-3">
@@ -374,58 +374,57 @@ export default function ListingDetailPage() {
                 <img
                   src={listing.user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200'}
                   alt={listing.user.name}
-                  className="w-14 h-14 rounded-2xl object-cover border border-gray-200"
+                  className="w-14 h-14 rounded-2xl object-cover border border-outline-variant/30"
                 />
               </Link>
               <div>
-                <Link href={`/profile/${listing.userId}`} className="font-bold text-gray-900 text-base hover:text-indigo-600 flex items-center gap-1.5">
+                <Link href={`/profile/${listing.userId}`} className="font-extrabold text-on-surface text-base hover:text-primary flex items-center gap-1.5 transition-colors">
                   {listing.user.name}
-                  {listing.user.isVerified && <ShieldCheck className="w-4 h-4 text-indigo-600" />}
+                  {listing.user.isVerified && <ShieldCheck className="w-4 h-4 text-primary" />}
                 </Link>
-                <div className="flex items-center gap-1.5 text-xs text-gray-500 mt-0.5">
-                  <span className="text-amber-500 font-bold flex items-center gap-0.5">
-                    <Star className="w-3.5 h-3.5 fill-amber-500" />
-                    {listing.user.reputationScore.toFixed(1)}
+                <div className="flex items-center gap-1.5 text-xs text-outline mt-0.5">
+                  <span className="text-tertiary font-bold flex items-center gap-0.5">
+                    ★ {listing.user.reputationScore.toFixed(1)}
                   </span>
                   <span>•</span>
-                  <span>{listing.user.totalReviews} verified reviews</span>
+                  <span>{listing.user.totalReviews} verified trades</span>
                 </div>
               </div>
             </div>
 
             {listing.user.bio && (
-              <p className="text-xs text-gray-600 italic">
-                "{listing.user.bio}"
+              <p className="text-xs text-on-surface-variant italic bg-surface-container-low p-3 rounded-2xl">
+                &quot;{listing.user.bio}&quot;
               </p>
             )}
 
             {/* Quick stats */}
-            <div className="grid grid-cols-2 gap-3 pt-2 text-xs">
-              <div className="p-3 bg-slate-50 rounded-xl">
-                <span className="text-gray-400 block text-[11px]">Completed Swaps</span>
-                <span className="font-bold text-gray-900 text-sm">{listing.user.totalTrades} trades</span>
+            <div className="grid grid-cols-2 gap-3 pt-1 text-xs">
+              <div className="p-3 bg-surface-container-low rounded-2xl">
+                <span className="text-outline block text-[10px] font-bold uppercase">Completed Swaps</span>
+                <span className="font-extrabold text-on-surface text-sm">{listing.user.totalTrades} trades</span>
               </div>
-              <div className="p-3 bg-slate-50 rounded-xl">
-                <span className="text-gray-400 block text-[11px]">Response Speed</span>
-                <span className="font-bold text-gray-900 text-sm">{listing.user.avgResponseTime || 'Within 1 hour'}</span>
+              <div className="p-3 bg-surface-container-low rounded-2xl">
+                <span className="text-outline block text-[10px] font-bold uppercase">Response Speed</span>
+                <span className="font-extrabold text-on-surface text-sm">{listing.user.avgResponseTime || 'Replies quickly'}</span>
               </div>
             </div>
 
             <Link
               href={`/profile/${listing.userId}`}
-              className="block text-center py-2 text-xs font-bold text-indigo-600 hover:text-indigo-700"
+              className="block text-center py-2 text-xs font-bold text-primary hover:underline"
             >
-              View Full Profile & All Listings →
+              View Full Trader Trust Dossier →
             </Link>
           </div>
 
           {/* Safety Notice */}
-          <div className="p-4 bg-amber-50/80 border border-amber-200/80 rounded-2xl flex items-start gap-3 text-xs text-amber-900">
-            <AlertTriangle className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+          <div className="p-4 bg-tertiary-fixed/30 border border-tertiary/20 rounded-2xl flex items-start gap-3 text-xs text-on-tertiary-fixed">
+            <AlertTriangle className="w-4 h-4 text-tertiary mt-0.5 shrink-0" />
             <div>
-              <p className="font-bold">Safe Meetup Advice</p>
-              <p className="mt-0.5 text-amber-800 leading-relaxed">
-                Always meet in well-lit public places (e.g. coffee shops, campus centers). Inspect items thoroughly and use the BarterHub 6-digit verification code before confirming trades.
+              <p className="font-bold">Campus Safe Zone Meetup</p>
+              <p className="mt-0.5 text-on-tertiary-fixed/90 leading-relaxed">
+                Always exchange items in campus centers or public coffee shops. Verify the 6-digit handshake code before handing over goods.
               </p>
             </div>
           </div>

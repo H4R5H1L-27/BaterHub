@@ -116,82 +116,138 @@ function ListingsContent() {
   };
 
   const FilterSidebar = () => (
-    <div className="space-y-6">
-      {/* Category / Type */}
-      <div>
-        <label className="text-xs font-bold text-gray-900 uppercase tracking-wider block mb-2.5">
-          Category Type
-        </label>
-        <div className="space-y-1.5">
+    <aside className="w-full lg:w-72 shrink-0 flex flex-col gap-6 bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/30 shadow-sm">
+      <div className="flex items-center justify-between pb-2 border-b border-outline-variant/30">
+        <div className="flex items-center gap-2">
+          <SlidersHorizontal className="w-4 h-4 text-primary" />
+          <span className="font-bold text-sm text-on-surface">Filters</span>
+        </div>
+        <button
+          onClick={handleClearFilters}
+          className="text-xs font-bold text-primary hover:text-secondary transition-colors"
+          type="button"
+        >
+          Clear All
+        </button>
+      </div>
+
+      {/* Category Selector */}
+      <div className="flex flex-col gap-2">
+        <label className="text-[11px] font-bold text-outline uppercase tracking-wider">Categories</label>
+        <div className="flex flex-col gap-1.5">
           {[
-            { label: 'All Items', val: '' },
+            { label: 'All Categories', val: '' },
             { label: 'Books & Textbooks', val: 'BOOK', icon: BookOpen },
             { label: 'Gear & Electronics', val: 'PRODUCT', icon: Package },
-          ].map((cat) => (
-            <button
-              key={cat.val}
-              type="button"
-              onClick={() => {
-                setListingType(cat.val);
-                updateFiltersInUrl({ type: cat.val });
-              }}
-              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
-                listingType === cat.val
-                  ? 'bg-indigo-600 text-white shadow-sm'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              <span>{cat.label}</span>
-              {cat.icon && <cat.icon className="w-3.5 h-3.5 opacity-80" />}
-            </button>
-          ))}
+          ].map((cat) => {
+            const active = listingType === cat.val;
+            return (
+              <button
+                key={cat.val}
+                type="button"
+                onClick={() => {
+                  setListingType(cat.val);
+                  updateFiltersInUrl({ type: cat.val });
+                }}
+                className={`w-full flex items-center justify-between px-3.5 py-2 rounded-full text-xs font-semibold transition-all ${
+                  active
+                    ? 'bg-primary-container text-white shadow-sm'
+                    : 'text-on-surface hover:bg-surface-container-low'
+                }`}
+              >
+                <span>{cat.label}</span>
+                {cat.icon && <cat.icon className="w-3.5 h-3.5 opacity-80" />}
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Exchange Mode */}
-      <div className="pt-4 border-t border-gray-200">
-        <label className="text-xs font-bold text-gray-900 uppercase tracking-wider block mb-2.5">
-          Exchange Mode
-        </label>
-        <div className="space-y-1.5">
+      {/* Exchange Mode Filter */}
+      <div className="flex flex-col gap-2 pt-3 border-t border-outline-variant/30">
+        <label className="text-[11px] font-bold text-outline uppercase tracking-wider">Exchange Mode</label>
+        <div className="flex flex-col gap-1.5">
           {[
-            { label: 'All Modes', val: '' },
-            { label: 'Barter Only', val: 'BARTER_ONLY', icon: Repeat },
-            { label: 'Cash or Barter (Hybrid)', val: 'HYBRID' },
-            { label: 'Cash Only', val: 'CASH_ONLY', icon: DollarSign },
-          ].map((mode) => (
-            <button
-              key={mode.val}
-              type="button"
-              onClick={() => {
-                setExchangeType(mode.val);
-                updateFiltersInUrl({ exchange: mode.val });
-              }}
-              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
-                exchangeType === mode.val
-                  ? 'bg-purple-600 text-white shadow-sm'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              <span>{mode.label}</span>
-              {mode.icon && <mode.icon className="w-3.5 h-3.5 opacity-80" />}
-            </button>
-          ))}
+            { label: 'All Modes', val: '', desc: 'Any trade preference' },
+            { label: 'True Barter', val: 'BARTER_ONLY', desc: 'Item-for-item trade', icon: Repeat },
+            { label: 'Hybrid Swap', val: 'HYBRID', desc: 'Item + partial cash' },
+            { label: 'Cash Direct', val: 'CASH_ONLY', desc: 'Straight valuation buyout', icon: DollarSign },
+          ].map((mode) => {
+            const active = exchangeType === mode.val;
+            return (
+              <button
+                key={mode.val}
+                type="button"
+                onClick={() => {
+                  setExchangeType(mode.val);
+                  updateFiltersInUrl({ exchange: mode.val });
+                }}
+                className={`w-full text-left p-2.5 rounded-xl border transition-all ${
+                  active
+                    ? 'bg-primary-fixed/40 border-primary text-primary'
+                    : 'bg-surface-container-lowest border-outline-variant/30 hover:bg-surface-container-low text-on-surface'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold">{mode.label}</span>
+                  {mode.icon && <mode.icon className="w-3.5 h-3.5" />}
+                </div>
+                <p className="text-[10px] text-outline mt-0.5">{mode.desc}</p>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Item Condition */}
-      <div className="pt-4 border-t border-gray-200">
-        <label className="text-xs font-bold text-gray-900 uppercase tracking-wider block mb-2.5">
-          Condition
-        </label>
+      {/* Valuation Range Histogram & Inputs */}
+      <div className="flex flex-col gap-2 pt-3 border-t border-outline-variant/30">
+        <div className="flex items-center justify-between">
+          <label className="text-[11px] font-bold text-outline uppercase tracking-wider">Valuation Range</label>
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary-fixed text-primary">
+            USD ($)
+          </span>
+        </div>
+        {/* Visual histogram bars */}
+        <div className="h-10 w-full flex items-end gap-1 px-1 pt-2 opacity-85">
+          <div className="w-full bg-primary-fixed-dim/40 rounded-t h-2" />
+          <div className="w-full bg-primary-fixed-dim/60 rounded-t h-4" />
+          <div className="w-full bg-primary-fixed-dim/80 rounded-t h-7" />
+          <div className="w-full bg-primary rounded-t h-10" />
+          <div className="w-full bg-primary rounded-t h-8" />
+          <div className="w-full bg-primary-container rounded-t h-5" />
+          <div className="w-full bg-primary-fixed-dim/50 rounded-t h-3" />
+        </div>
+        <div className="flex items-center gap-2 mt-1">
+          <input
+            type="number"
+            placeholder="Min $"
+            value={minPrice}
+            onChange={(e) => setMinPrice(e.target.value)}
+            onBlur={() => updateFiltersInUrl()}
+            className="w-1/2 px-3 py-1.5 bg-surface-container-low border border-outline-variant/40 rounded-xl text-xs text-on-surface focus:outline-none focus:border-primary"
+          />
+          <span className="text-outline text-xs">-</span>
+          <input
+            type="number"
+            placeholder="Max $"
+            value={maxPrice}
+            onChange={(e) => setMaxPrice(e.target.value)}
+            onBlur={() => updateFiltersInUrl()}
+            className="w-1/2 px-3 py-1.5 bg-surface-container-low border border-outline-variant/40 rounded-xl text-xs text-on-surface focus:outline-none focus:border-primary"
+          />
+        </div>
+      </div>
+
+      {/* Condition Selector */}
+      <div className="flex flex-col gap-2 pt-3 border-t border-outline-variant/30">
+        <label className="text-[11px] font-bold text-outline uppercase tracking-wider">Condition</label>
         <select
           value={condition}
           onChange={(e) => {
             setCondition(e.target.value);
             updateFiltersInUrl({ condition: e.target.value });
           }}
-          className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs text-gray-800 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+          className="w-full px-3 py-2 bg-surface-container-low border border-outline-variant/40 rounded-xl text-xs text-on-surface font-medium focus:outline-none focus:border-primary"
         >
           <option value="">Any Condition</option>
           <option value="BRAND_NEW">Brand New</option>
@@ -202,65 +258,27 @@ function ListingsContent() {
         </select>
       </div>
 
-      {/* Price Range */}
-      <div className="pt-4 border-t border-gray-200">
-        <label className="text-xs font-bold text-gray-900 uppercase tracking-wider block mb-2.5">
-          Price Range ($ USD)
-        </label>
-        <div className="flex items-center gap-2">
-          <input
-            type="number"
-            placeholder="Min"
-            value={minPrice}
-            onChange={(e) => setMinPrice(e.target.value)}
-            onBlur={() => updateFiltersInUrl()}
-            className="w-1/2 px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs text-gray-800 focus:outline-none focus:border-indigo-500"
-          />
-          <span className="text-gray-400 text-xs">-</span>
-          <input
-            type="number"
-            placeholder="Max"
-            value={maxPrice}
-            onChange={(e) => setMaxPrice(e.target.value)}
-            onBlur={() => updateFiltersInUrl()}
-            className="w-1/2 px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs text-gray-800 focus:outline-none focus:border-indigo-500"
-          />
-        </div>
-      </div>
-
-      {/* City */}
-      <div className="pt-4 border-t border-gray-200">
-        <label className="text-xs font-bold text-gray-900 uppercase tracking-wider block mb-2.5">
-          Location / City
-        </label>
+      {/* Location */}
+      <div className="flex flex-col gap-2 pt-3 border-t border-outline-variant/30">
+        <label className="text-[11px] font-bold text-outline uppercase tracking-wider">City / Campus</label>
         <input
           type="text"
-          placeholder="e.g. New York, Austin, Boston"
+          placeholder="e.g. New York, Austin, UCLA"
           value={city}
           onChange={(e) => setCity(e.target.value)}
           onBlur={() => updateFiltersInUrl()}
-          className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs text-gray-800 focus:outline-none focus:border-indigo-500"
+          className="w-full px-3 py-2 bg-surface-container-low border border-outline-variant/40 rounded-xl text-xs text-on-surface font-medium focus:outline-none focus:border-primary"
         />
       </div>
 
-      {/* Apply / Reset buttons */}
-      <div className="pt-4 space-y-2">
-        <button
-          type="button"
-          onClick={() => handleApplyFilters()}
-          className="w-full py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-bold hover:bg-indigo-700 shadow-sm transition-colors"
-        >
-          Apply Filters
-        </button>
-        <button
-          type="button"
-          onClick={handleClearFilters}
-          className="w-full py-2 text-gray-600 hover:text-gray-900 rounded-xl text-xs font-semibold transition-colors"
-        >
-          Reset All Filters
-        </button>
-      </div>
-    </div>
+      <button
+        type="button"
+        onClick={() => handleApplyFilters()}
+        className="w-full py-2.5 bg-primary hover:bg-primary-container text-white rounded-full text-xs font-bold shadow-lift transition-all mt-2"
+      >
+        Apply Filters
+      </button>
+    </aside>
   );
 
   return (
@@ -268,89 +286,119 @@ function ListingsContent() {
       {/* Top Header & Search Bar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-fixed text-primary text-[11px] font-bold mb-2">
+            Circular Catalog
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-on-surface tracking-tight">
             Explore Exchange Catalog
           </h1>
-          <p className="text-xs sm:text-sm text-gray-700 mt-1">
-            {listings.length} available items across books, college textbooks, and electronics
+          <p className="text-xs text-on-surface-variant mt-1">
+            {listings.length} available items ready for peer-to-peer barter, cash offer, or hybrid swap
           </p>
         </div>
 
-        {/* Search and Sort */}
-        <div className="flex items-center gap-3">
-          <form onSubmit={handleApplyFilters} className="relative flex-1 md:w-80">
-            <input
-              type="text"
-              placeholder="Filter by title, author, ISBN..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-white border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 rounded-xl text-xs text-gray-900 focus:outline-none"
-            />
-            <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
-          </form>
+        {/* Search, Sort, and Mobile Toggle */}
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={() => setMobileFilterOpen(true)}
+            className="lg:hidden flex items-center gap-1.5 px-3.5 py-2 bg-surface-container-lowest border border-outline-variant/40 rounded-full text-xs font-bold text-on-surface shadow-sm"
+          >
+            <Filter className="w-3.5 h-3.5 text-primary" />
+            <span>Filters</span>
+          </button>
 
-          {/* Sort Dropdown */}
-          <div className="relative">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-surface-container-lowest border border-outline-variant/40 rounded-full shadow-sm">
+            <ArrowUpDown className="w-3.5 h-3.5 text-outline" />
             <select
               value={sort}
               onChange={(e) => {
                 setSort(e.target.value);
                 updateFiltersInUrl({ sort: e.target.value });
               }}
-              className="px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs font-semibold text-gray-700 focus:outline-none focus:border-indigo-500 cursor-pointer"
+              className="bg-transparent text-xs font-semibold text-on-surface border-none focus:outline-none cursor-pointer"
             >
               <option value="newest">Newest First</option>
               <option value="price_asc">Price: Low to High</option>
               <option value="price_desc">Price: High to Low</option>
-              <option value="popular">Most Popular</option>
+              <option value="views">Most Viewed</option>
             </select>
           </div>
-
-          {/* Mobile Filter Toggle */}
-          <button
-            onClick={() => setMobileFilterOpen(true)}
-            className="md:hidden p-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50"
-          >
-            <SlidersHorizontal className="w-4 h-4" />
-          </button>
         </div>
       </div>
 
-      {/* Main Grid: Sidebar + Listings */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-8 items-start">
-        {/* Desktop Sidebar */}
-        <div className="hidden md:block bg-white p-5 rounded-2xl border border-gray-200/80 shadow-sm sticky top-20">
-          <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-100">
-            <SlidersHorizontal className="w-4 h-4 text-indigo-600" />
-            <span className="font-bold text-gray-900 text-sm">Faceted Filters</span>
-          </div>
+      {/* Active Filter Pills */}
+      {(query || listingType || exchangeType || condition || city || minPrice || maxPrice) && (
+        <div className="flex flex-wrap items-center gap-2 mb-6">
+          <span className="text-xs font-bold text-outline">Active filters:</span>
+          {query && (
+            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-surface-container text-xs font-medium text-on-surface">
+              Query: &quot;{query}&quot;
+              <button onClick={() => { setQuery(''); updateFiltersInUrl({ q: '' }); }} className="hover:text-primary"><X className="w-3 h-3" /></button>
+            </span>
+          )}
+          {listingType && (
+            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-surface-container text-xs font-medium text-on-surface">
+              Type: {listingType}
+              <button onClick={() => { setListingType(''); updateFiltersInUrl({ type: '' }); }} className="hover:text-primary"><X className="w-3 h-3" /></button>
+            </span>
+          )}
+          {exchangeType && (
+            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-surface-container text-xs font-medium text-on-surface">
+              Mode: {exchangeType}
+              <button onClick={() => { setExchangeType(''); updateFiltersInUrl({ exchange: '' }); }} className="hover:text-primary"><X className="w-3 h-3" /></button>
+            </span>
+          )}
+          {condition && (
+            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-surface-container text-xs font-medium text-on-surface">
+              Condition: {condition}
+              <button onClick={() => { setCondition(''); updateFiltersInUrl({ condition: '' }); }} className="hover:text-primary"><X className="w-3 h-3" /></button>
+            </span>
+          )}
+          {city && (
+            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-surface-container text-xs font-medium text-on-surface">
+              City: {city}
+              <button onClick={() => { setCity(''); updateFiltersInUrl({ city: '' }); }} className="hover:text-primary"><X className="w-3 h-3" /></button>
+            </span>
+          )}
+          <button
+            onClick={handleClearFilters}
+            className="text-xs font-bold text-primary hover:underline ml-2"
+          >
+            Clear all
+          </button>
+        </div>
+      )}
+
+      {/* Main Layout: Filter Sidebar + Grid */}
+      <div className="flex flex-col lg:flex-row gap-8 items-start">
+        <div className="hidden lg:block">
           <FilterSidebar />
         </div>
 
-        {/* Listings Container */}
-        <div className="md:col-span-3">
+        {/* Listings Display Grid */}
+        <div className="flex-1 w-full">
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div key={i} className="h-80 bg-gray-100 rounded-2xl animate-pulse" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+              {[1, 2, 3, 4, 5, 6].map((n) => (
+                <div key={n} className="h-80 bg-surface-container rounded-2xl animate-pulse" />
               ))}
             </div>
           ) : listings.length === 0 ? (
-            <div className="bg-white p-12 text-center rounded-2xl border border-gray-200 shadow-sm space-y-3">
-              <Package className="w-12 h-12 text-gray-300 mx-auto" />
-              <h3 className="text-base font-bold text-gray-900">No matching listings found</h3>
-              <p className="text-xs text-gray-700 max-w-sm mx-auto">
-                Try widening your search terms, changing the condition, or resetting all filters.
+            <div className="text-center py-20 bg-surface-container-lowest rounded-2xl border border-outline-variant/30 p-8">
+              <Package className="w-12 h-12 text-outline mx-auto mb-3" />
+              <h3 className="font-bold text-lg text-on-surface">No matching listings found</h3>
+              <p className="text-xs text-on-surface-variant mt-1 max-w-sm mx-auto">
+                Try widening your price range, clearing filters, or searching for other keywords.
               </p>
               <button
                 onClick={handleClearFilters}
-                className="px-4 py-2 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-xl hover:bg-indigo-100 transition-colors"
+                className="mt-5 px-5 py-2 rounded-full bg-primary text-white text-xs font-bold hover:bg-primary-container transition-all"
               >
-                Reset Filters
+                Reset All Filters
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
               {listings.map((item) => (
                 <ListingCard key={item.id} listing={item} />
               ))}
@@ -359,13 +407,16 @@ function ListingsContent() {
         </div>
       </div>
 
-      {/* Mobile Filters Drawer */}
+      {/* Mobile Filters Modal */}
       {mobileFilterOpen && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm">
-          <div className="w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl max-h-[90vh] overflow-y-auto p-6 space-y-6">
-            <div className="flex items-center justify-between pb-3 border-b border-gray-100">
-              <h3 className="font-bold text-gray-900 text-base">Filter Catalog</h3>
-              <button onClick={() => setMobileFilterOpen(false)} className="p-1 text-gray-400 hover:text-gray-600">
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex justify-end">
+          <div className="w-full max-w-xs bg-surface-container-lowest h-full overflow-y-auto p-5 shadow-modal">
+            <div className="flex items-center justify-between pb-4 border-b border-outline-variant/30 mb-4">
+              <h3 className="font-bold text-base text-on-surface">Filters</h3>
+              <button
+                onClick={() => setMobileFilterOpen(false)}
+                className="p-1.5 rounded-full hover:bg-surface-container text-outline"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -373,14 +424,13 @@ function ListingsContent() {
           </div>
         </div>
       )}
-
     </div>
   );
 }
 
 export default function ListingsPage() {
   return (
-    <Suspense fallback={<div className="max-w-7xl mx-auto px-4 py-16 text-center text-sm text-gray-500">Loading catalog...</div>}>
+    <Suspense fallback={<div className="p-12 text-center text-xs text-outline">Loading catalog...</div>}>
       <ListingsContent />
     </Suspense>
   );

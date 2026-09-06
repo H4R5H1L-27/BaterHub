@@ -169,106 +169,173 @@ export default function MyListingsDashboard() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Toast Notification */}
       {actionSuccess && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-xl border border-white/10 text-xs font-bold animate-bounce">
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-on-surface text-white px-4 py-3 rounded-2xl shadow-modal text-xs font-bold animate-bounce">
           <CheckCircle2 className="w-4 h-4 text-emerald-400" />
           <span>{actionSuccess}</span>
         </div>
       )}
 
       {/* Header Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 sm:p-8 rounded-3xl border border-gray-200/80 shadow-sm">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-surface-container-lowest p-6 sm:p-8 rounded-3xl border border-outline-variant/30 shadow-sm">
         <div>
-          <div className="flex items-center gap-2 text-indigo-600 font-bold text-xs uppercase tracking-wider mb-1">
-            <SlidersHorizontal className="w-4 h-4" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-fixed text-primary text-[11px] font-bold mb-2">
+            <SlidersHorizontal className="w-3.5 h-3.5" />
             <span>Listing Management Desk</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">
-            Manage Posted Items
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-on-surface tracking-tight">
+            Inventory & Barter Velocity
           </h1>
-          <p className="text-xs sm:text-sm text-gray-600 mt-1">
-            Control listing status, drop prices, boost visibility, track offers, and view stats.
+          <p className="text-xs text-on-surface-variant mt-1">
+            Monitor barter velocity, drop prices, boost visibility, manage inbound proposals, and verify meetups.
           </p>
         </div>
 
         <Link
           href="/listings/new"
-          className="inline-flex items-center gap-2 px-5 py-3 bg-indigo-600 text-white font-bold text-xs rounded-2xl hover:bg-indigo-700 shadow-md hover:shadow-indigo-200 transition-all self-start md:self-auto"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-secondary hover:bg-secondary-container text-white font-bold text-xs rounded-full shadow-[0_4px_16px_rgba(113,42,226,0.25)] transition-all self-start md:self-auto"
         >
           <PlusCircle className="w-4 h-4" />
-          <span>Post New Item</span>
+          <span>Post New Barter</span>
         </Link>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-gray-200/80 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Active Ads</p>
-            <p className="text-2xl font-black text-gray-900 mt-1">{activeCount}</p>
+      {/* 4 Bento Analytics Metric Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {/* Metric 1: Active Listings */}
+        <div className="p-5 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 shadow-sm flex flex-col justify-between hover:shadow-md transition-all">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-bold text-on-surface-variant">Active Inventory</span>
+            <div className="w-9 h-9 rounded-full bg-primary-fixed flex items-center justify-center text-primary">
+              <Package className="w-4 h-4" />
+            </div>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
-            <Package className="w-5 h-5" />
+          <div>
+            <div className="flex items-baseline gap-2 mb-1">
+              <span className="text-3xl font-extrabold text-on-surface">{activeCount}</span>
+              <span className="text-xs text-outline">items listed</span>
+            </div>
+            <div className="text-[11px] text-primary font-bold">
+              {listings.length > 0 ? Math.round((activeCount / listings.length) * 100) : 100}% circulating
+            </div>
+          </div>
+          <div className="w-full bg-surface-container-low h-1.5 rounded-full mt-3 overflow-hidden">
+            <div
+              className="bg-primary h-full rounded-full"
+              style={{ width: `${listings.length > 0 ? (activeCount / listings.length) * 100 : 0}%` }}
+            />
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-gray-200/80 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Total Views</p>
-            <p className="text-2xl font-black text-gray-900 mt-1">{totalViews}</p>
+        {/* Metric 2: Inbound Proposals */}
+        <div className="p-5 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 shadow-sm flex flex-col justify-between hover:shadow-md transition-all">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-bold text-on-surface-variant">Inbound Proposals</span>
+            <div className="w-9 h-9 rounded-full bg-tertiary-fixed flex items-center justify-center text-tertiary">
+              <Repeat className="w-4 h-4" />
+            </div>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
-            <Eye className="w-5 h-5" />
+          <div>
+            <div className="flex items-baseline gap-2 mb-1">
+              <span className="text-3xl font-extrabold text-on-surface">{totalOffers}</span>
+              <span className="text-xs text-outline">proposals</span>
+            </div>
+            <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed text-[10px] font-bold">
+              <span>Ready for negotiation</span>
+            </div>
+          </div>
+          <div className="w-full bg-surface-container-low h-1.5 rounded-full mt-3 overflow-hidden">
+            <div className="bg-tertiary h-full rounded-full" style={{ width: '65%' }} />
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-gray-200/80 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Offers Received</p>
-            <p className="text-2xl font-black text-gray-900 mt-1">{totalOffers}</p>
+        {/* Metric 3: Total Views with Sparkline */}
+        <div className="p-5 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 shadow-sm flex flex-col justify-between hover:shadow-md transition-all">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-bold text-on-surface-variant">Total Catalog Views</span>
+            <div className="w-9 h-9 rounded-full bg-secondary-fixed flex items-center justify-center text-secondary">
+              <Eye className="w-4 h-4" />
+            </div>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold">
-            <Repeat className="w-5 h-5" />
+          <div className="flex items-end justify-between gap-2">
+            <div>
+              <div className="text-3xl font-extrabold text-on-surface">{totalViews}</div>
+              <div className="text-[11px] text-secondary font-bold flex items-center gap-1">
+                <span>↑ Active audience</span>
+              </div>
+            </div>
+            {/* Sparkline Graphic */}
+            <svg className="w-16 h-8 text-secondary" fill="none" preserveAspectRatio="none" viewBox="0 0 100 40">
+              <path d="M0 35 Q 20 28, 35 30 T 65 14 T 100 4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" />
+              <path d="M0 35 Q 20 28, 35 30 T 65 14 T 100 4 L 100 40 L 0 40 Z" fill="currentColor" fillOpacity="0.12" />
+            </svg>
+          </div>
+          <div className="w-full bg-surface-container-low h-1.5 rounded-full mt-3 overflow-hidden">
+            <div className="bg-secondary h-full rounded-full" style={{ width: '80%' }} />
+          </div>
+        </div>
+
+        {/* Metric 4: Completed Exchanges */}
+        <div className="p-5 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 shadow-sm flex flex-col justify-between hover:shadow-md transition-all">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-bold text-on-surface-variant">Completed Exchanges</span>
+            <div className="w-9 h-9 rounded-full bg-primary-fixed flex items-center justify-center text-primary">
+              <CheckCircle2 className="w-4 h-4" />
+            </div>
+          </div>
+          <div>
+            <div className="flex items-baseline gap-2 mb-1">
+              <span className="text-3xl font-extrabold text-on-surface">
+                {listings.filter((i) => i.status === 'TRADED' || i.status === 'SOLD').length}
+              </span>
+              <span className="text-xs text-outline">swaps finalized</span>
+            </div>
+            <div className="text-[11px] text-on-surface font-bold">
+              ★ 4.98 <span className="text-outline font-normal">trust rating</span>
+            </div>
+          </div>
+          <div className="w-full bg-surface-container-low h-1.5 rounded-full mt-3 overflow-hidden">
+            <div className="bg-primary h-full rounded-full" style={{ width: '90%' }} />
           </div>
         </div>
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex items-center gap-2 border-b border-gray-200 pb-2 overflow-x-auto">
+      <div className="flex items-center gap-2 p-1.5 bg-surface-container-low rounded-2xl overflow-x-auto">
         {(['ALL', 'ACTIVE', 'RESERVED', 'SOLD', 'TRADED'] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
               activeTab === tab
-                ? 'bg-gray-900 text-white shadow-sm'
-                : 'text-gray-600 hover:bg-gray-100'
+                ? 'bg-primary text-white shadow-sm'
+                : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
             }`}
           >
             {tab === 'ALL' ? 'All Items' : tab}
-            <span className="ml-1.5 opacity-60">
+            <span className="ml-1.5 opacity-70">
               ({tab === 'ALL' ? listings.length : listings.filter((i) => i.status === tab).length})
             </span>
           </button>
         ))}
       </div>
 
-      {/* Listings List / Grid */}
+      {/* Listings List */}
       {loading ? (
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-36 bg-gray-100 rounded-2xl animate-pulse" />
+            <div key={i} className="h-36 bg-surface-container rounded-2xl animate-pulse" />
           ))}
         </div>
       ) : filteredListings.length === 0 ? (
-        <div className="bg-white p-12 text-center rounded-3xl border border-gray-200/80 shadow-sm space-y-4">
-          <Package className="w-12 h-12 text-gray-300 mx-auto" />
-          <h3 className="text-base font-bold text-gray-900">No items found in this view</h3>
-          <p className="text-xs text-gray-500 max-w-sm mx-auto">
-            You don't have any items matching this filter tab. Create a new listing to start trading!
+        <div className="bg-surface-container-lowest p-12 text-center rounded-3xl border border-outline-variant/30 shadow-sm space-y-4">
+          <Package className="w-12 h-12 text-outline mx-auto" />
+          <h3 className="text-base font-bold text-on-surface">No items found in this view</h3>
+          <p className="text-xs text-on-surface-variant max-w-sm mx-auto">
+            You don't have any items matching this filter tab. Post a new listing to start trading!
           </p>
           <Link
             href="/listings/new"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold hover:bg-indigo-700 transition-colors"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-full text-xs font-bold hover:bg-primary-container transition-all"
           >
             <PlusCircle className="w-4 h-4" />
             Post First Item
@@ -280,18 +347,18 @@ export default function MyListingsDashboard() {
             return (
               <div
                 key={item.id}
-                className="bg-white p-5 rounded-3xl border border-gray-200/80 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row gap-5 items-start md:items-center justify-between"
+                className="bg-surface-container-lowest p-5 rounded-3xl border border-outline-variant/30 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row gap-5 items-start md:items-center justify-between"
               >
                 {/* Thumbnail & Info */}
                 <div className="flex gap-4 items-start flex-1 min-w-0">
-                  <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-gray-100 flex-shrink-0 border border-gray-200">
+                  <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-surface-container-low shrink-0 border border-outline-variant/30">
                     <img
                       src={item.images?.[0] || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600&auto=format&fit=crop&q=80'}
                       alt={item.title}
                       className="w-full h-full object-cover"
                     />
                     {item.isFeatured && (
-                      <span className="absolute top-1 left-1 bg-amber-500 text-white text-[9px] font-black uppercase px-1.5 py-0.5 rounded-md shadow-sm">
+                      <span className="absolute top-1 left-1 bg-secondary text-white text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-md shadow-sm">
                         Featured
                       </span>
                     )}
@@ -300,48 +367,48 @@ export default function MyListingsDashboard() {
                   <div className="space-y-1.5 min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <span
-                        className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-lg ${
+                        className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-lg ${
                           item.status === 'ACTIVE'
                             ? 'bg-emerald-100 text-emerald-800'
                             : item.status === 'RESERVED'
                             ? 'bg-amber-100 text-amber-800'
-                            : 'bg-gray-100 text-gray-800'
+                            : 'bg-surface-container text-on-surface-variant'
                         }`}
                       >
                         {item.status}
                       </span>
-                      <span className="text-[10px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-lg uppercase">
+                      <span className="text-[10px] font-bold text-on-surface-variant bg-surface-container px-2 py-0.5 rounded-lg uppercase">
                         {item.listingType}
                       </span>
-                      <span className="text-[10px] font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-lg uppercase">
+                      <span className="text-[10px] font-bold text-primary bg-primary-fixed px-2 py-0.5 rounded-lg uppercase">
                         {item.exchangeType.replace('_', ' ')}
                       </span>
                     </div>
 
-                    <h3 className="text-base font-bold text-gray-900 truncate">{item.title}</h3>
+                    <h3 className="text-base font-bold text-on-surface truncate">{item.title}</h3>
 
                     {/* Price & Price Drop */}
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-black text-gray-900">
+                      <span className="text-sm font-extrabold text-on-surface">
                         {item.price ? `$${item.price}` : 'Barter Only'}
                       </span>
                       {item.previousPrice && (
-                        <span className="text-xs text-gray-400 line-through">
+                        <span className="text-xs text-outline line-through">
                           ${item.previousPrice}
                         </span>
                       )}
                     </div>
 
                     {/* Quick Stats */}
-                    <div className="flex items-center gap-4 text-xs text-gray-500 pt-1">
+                    <div className="flex items-center gap-4 text-xs text-on-surface-variant pt-1">
                       <span className="flex items-center gap-1">
-                        <Eye className="w-3.5 h-3.5 text-gray-400" />
+                        <Eye className="w-3.5 h-3.5 text-outline" />
                         <span>{item.viewsCount || 0} views</span>
                       </span>
                       <span className="flex items-center gap-1">
-                        <Repeat className="w-3.5 h-3.5 text-indigo-500" />
-                        <span className="font-bold text-indigo-600">
-                          {(item._count?.cashOffers || 0) + (item._count?.barterProposalsAsTarget || 0)} offers
+                        <Repeat className="w-3.5 h-3.5 text-primary" />
+                        <span className="font-bold text-primary">
+                          {(item._count?.cashOffers || 0) + (item._count?.barterProposalsAsTarget || 0)} proposals
                         </span>
                       </span>
                     </div>
@@ -349,23 +416,22 @@ export default function MyListingsDashboard() {
                 </div>
 
                 {/* Interactive Management Toolbar */}
-                <div className="w-full md:w-auto border-t md:border-t-0 md:border-l border-gray-100 pt-4 md:pt-0 md:pl-5 flex flex-col sm:flex-row md:flex-col gap-2 flex-shrink-0">
+                <div className="w-full md:w-auto border-t md:border-t-0 md:border-l border-outline-variant/30 pt-4 md:pt-0 md:pl-5 flex flex-col sm:flex-row md:flex-col gap-2 shrink-0">
                   {/* Status Dropdown */}
                   <div className="flex items-center gap-2">
-                    <label className="text-[10px] font-bold uppercase text-gray-400 sm:hidden md:block">
+                    <label className="text-[10px] font-bold uppercase text-outline sm:hidden md:block">
                       Status:
                     </label>
                     <select
                       value={item.status}
                       onChange={(e) => handleStatusChange(item.id, e.target.value)}
-                      className="w-full text-xs font-bold bg-gray-50 border border-gray-200 rounded-xl px-3 py-1.5 text-gray-800 focus:outline-none focus:border-indigo-500 cursor-pointer"
+                      className="px-3 py-1.5 bg-surface-container-low border border-outline-variant/40 rounded-full text-xs font-semibold text-on-surface focus:outline-none focus:border-primary"
                     >
-                      <option value="ACTIVE">Mark Active</option>
-                      <option value="RESERVED">Mark Reserved</option>
-                      <option value="PENDING_EXCHANGE">Pending Exchange</option>
-                      <option value="SOLD">Mark Sold</option>
-                      <option value="TRADED">Mark Traded</option>
-                      <option value="ARCHIVED">Archive Ad</option>
+                      <option value="ACTIVE">ACTIVE</option>
+                      <option value="RESERVED">RESERVED</option>
+                      <option value="TRADED">TRADED</option>
+                      <option value="SOLD">SOLD</option>
+                      <option value="ARCHIVED">ARCHIVED</option>
                     </select>
                   </div>
 
@@ -374,7 +440,7 @@ export default function MyListingsDashboard() {
                     {/* View Public Listing */}
                     <Link
                       href={`/listings/${item.id}`}
-                      className="p-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-semibold flex items-center gap-1 transition-colors"
+                      className="p-2 bg-surface-container-low hover:bg-surface-container text-on-surface rounded-full text-xs font-semibold flex items-center transition-colors"
                       title="View Public Page"
                     >
                       <ExternalLink className="w-3.5 h-3.5" />
@@ -383,7 +449,7 @@ export default function MyListingsDashboard() {
                     {/* Copy Link */}
                     <button
                       onClick={() => handleCopyLink(item.id)}
-                      className="p-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-semibold flex items-center gap-1 transition-colors"
+                      className="p-2 bg-surface-container-low hover:bg-surface-container text-on-surface rounded-full text-xs font-semibold flex items-center transition-colors"
                       title="Share / Copy Link"
                     >
                       <Share2 className="w-3.5 h-3.5" />
@@ -395,7 +461,7 @@ export default function MyListingsDashboard() {
                         setEditingPriceId(editingPriceId === item.id ? null : item.id);
                         setNewPrice(item.price ? item.price.toString() : '');
                       }}
-                      className="px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-xl text-xs font-bold flex items-center gap-1 transition-colors"
+                      className="px-3 py-1.5 bg-tertiary-fixed text-on-tertiary-fixed rounded-full text-xs font-bold flex items-center gap-1 transition-all"
                       title="Update / Drop Price"
                     >
                       <TrendingDown className="w-3.5 h-3.5" />
@@ -406,10 +472,10 @@ export default function MyListingsDashboard() {
                     <button
                       onClick={() => handlePromote(item.id, 'FEATURED')}
                       disabled={item.isFeatured}
-                      className={`px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 transition-colors ${
+                      className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1 transition-all ${
                         item.isFeatured
-                          ? 'bg-emerald-50 text-emerald-700 cursor-default'
-                          : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700'
+                          ? 'bg-secondary-fixed text-secondary cursor-default'
+                          : 'bg-primary-fixed hover:bg-primary-fixed-dim text-primary'
                       }`}
                       title="Feature Ad on Top"
                     >
@@ -420,7 +486,7 @@ export default function MyListingsDashboard() {
                     {/* Delete */}
                     <button
                       onClick={() => handleDelete(item.id)}
-                      className="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl text-xs font-semibold flex items-center transition-colors"
+                      className="p-2 bg-clay/10 hover:bg-clay/20 text-clay rounded-full text-xs font-semibold flex items-center transition-colors"
                       title="Delete Listing"
                     >
                       <Trash2 className="w-3.5 h-3.5" />

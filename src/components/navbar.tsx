@@ -111,30 +111,29 @@ export default function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-surface/95 backdrop-blur border-b border-ink/10">
+    <header className="sticky top-0 z-50 bg-surface-container-lowest/95 backdrop-blur-xl border-b border-outline-variant/30 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-[72px] gap-3">
-          <Link href="/" className="flex items-center gap-2.5 flex-shrink-0 group">
-            <div className="w-10 h-10 rounded-xl bg-sage text-surface flex items-center justify-center group-hover:bg-ink transition-colors">
-              <ArrowLeftRight className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="font-display text-xl tracking-tight text-ink">
-                Barter<span className="text-sage">Hub</span>
-              </span>
-              <span className="hidden sm:block text-[10px] text-mist uppercase tracking-[0.16em]">
-                Classifieds & swaps
-              </span>
-            </div>
+        <div className="flex items-center justify-between h-20 gap-3">
+          {/* Brand Logo */}
+          <Link href="/" className="flex items-center gap-2.5 shrink-0 focus:outline-none group">
+            <svg className="h-10 w-auto" viewBox="0 0 180 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="40" height="40" rx="12" fill="#4648d4" />
+              <path d="M14 16H26M26 16L22 12M26 16L22 20" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M26 24H14M14 24L18 20M14 24L18 28" stroke="#FBBF24" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              <text x="48" y="28" fontFamily="Plus Jakarta Sans, sans-serif" fontSize="22" fontWeight="800" fill="#131b2e" letterSpacing="-0.5">
+                Barter<tspan fill="#4648d4">Hub</tspan>
+              </text>
+            </svg>
           </Link>
 
-          <div className="hidden md:flex flex-1 max-w-2xl items-center gap-2">
-            <label className="flex items-center gap-1.5 px-3 h-11 rounded-xl bg-paper border border-ink/10 text-xs font-semibold text-ink hover:border-sage/40 transition-colors">
-              <MapPin className="w-4 h-4 text-sage flex-shrink-0" />
+          {/* Center Search Bar with Location Pill */}
+          <div className="hidden lg:flex items-center flex-1 max-w-2xl bg-surface-container-low rounded-full px-2 py-1.5 border border-outline-variant/40 shadow-inner">
+            <label className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-lowest text-xs font-semibold text-on-surface shadow-sm cursor-pointer hover:bg-surface-container transition-colors">
+              <MapPin className="w-3.5 h-3.5 text-primary flex-shrink-0" />
               <select
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
-                className="bg-transparent focus:outline-none cursor-pointer max-w-[140px]"
+                className="bg-transparent focus:outline-none cursor-pointer max-w-[110px] text-xs"
                 aria-label="Location"
               >
                 {CITIES.map((c) => (
@@ -145,20 +144,21 @@ export default function Navbar() {
               </select>
             </label>
 
-            <form onSubmit={handleSearchSubmit} className="relative flex-1">
+            <div className="h-5 w-px bg-outline-variant/60 mx-2" />
+
+            <form onSubmit={handleSearchSubmit} className="relative flex-1 flex items-center">
+              <Search className="w-4 h-4 text-outline mr-2 shrink-0 pointer-events-none" />
               <input
                 ref={searchRef}
                 type="text"
-                placeholder="Find books, textbooks, tech gear..."
+                placeholder="Search books, gear, electronics to barter..."
                 value={searchQuery}
                 onFocus={() => setSearchOpen(true)}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-11 pl-10 pr-32 bg-paper hover:bg-white focus:bg-white text-sm rounded-xl border border-ink/10 focus:border-sage focus:outline-none transition-colors"
+                className="w-full bg-transparent border-none focus:outline-none text-xs text-on-surface placeholder:text-outline/80"
               />
-              <Search className="absolute left-3.5 top-3.5 w-4 h-4 text-mist pointer-events-none" />
 
-              {/* Action buttons on the right inside search input: never overlaps */}
-              <div className="absolute right-1.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
+              <div className="flex items-center gap-1 shrink-0 ml-1">
                 {searchQuery && (
                   <button
                     type="button"
@@ -166,9 +166,8 @@ export default function Navbar() {
                       setSearchQuery('');
                       searchRef.current?.focus();
                     }}
-                    className="p-1 text-mist hover:text-ink rounded-lg transition-colors"
+                    className="p-1 text-outline hover:text-on-surface rounded-full"
                     title="Clear search"
-                    aria-label="Clear search"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
@@ -176,49 +175,49 @@ export default function Navbar() {
                 <button
                   type="button"
                   onClick={startVoice}
-                  className={`h-8 w-8 flex items-center justify-center rounded-lg transition-all ${
+                  className={`p-1.5 rounded-full transition-all ${
                     isListening
-                      ? 'bg-clay text-white animate-pulse shadow-sm'
-                      : 'text-mist hover:text-sage hover:bg-sage-tint/60'
+                      ? 'bg-clay text-white animate-pulse'
+                      : 'text-outline hover:text-primary hover:bg-surface-container'
                   }`}
                   aria-label="Voice search"
                   title={isListening ? 'Listening... speak now' : 'Voice search'}
                 >
-                  <Mic className="w-4 h-4" />
+                  <Mic className="w-3.5 h-3.5" />
                 </button>
                 <button
                   type="submit"
-                  className="h-8 px-3.5 bg-sage text-surface text-xs font-bold rounded-lg hover:bg-ink transition-colors flex items-center gap-1.5 shadow-sm"
+                  className="px-3 py-1 bg-primary text-white text-xs font-semibold rounded-full hover:bg-primary-container transition-all shadow-sm"
                 >
-                  <span>Search</span>
+                  Search
                 </button>
               </div>
 
               {searchOpen && (
-                <div className="absolute top-12 left-0 right-0 bg-surface border border-ink/10 rounded-xl shadow-lift p-3 z-50">
+                <div className="absolute top-12 left-0 right-0 bg-surface-container-lowest border border-outline-variant/50 rounded-2xl shadow-lift p-3 z-50">
                   {recentSearches.length > 0 && (
-                    <div className="mb-2">
-                      <p className="text-[10px] uppercase tracking-wider text-mist mb-1">Recent</p>
+                    <div className="mb-2.5">
+                      <p className="text-[10px] uppercase tracking-wider text-outline font-bold mb-1">Recent Searches</p>
                       {recentSearches.map((s) => (
                         <button
                           key={s}
                           type="button"
                           onClick={() => goSearch(s)}
-                          className="block w-full text-left text-sm py-1.5 hover:text-sage"
+                          className="block w-full text-left text-xs py-1 text-on-surface hover:text-primary transition-colors"
                         >
                           {s}
                         </button>
                       ))}
                     </div>
                   )}
-                  <p className="text-[10px] uppercase tracking-wider text-mist mb-1">Trending</p>
+                  <p className="text-[10px] uppercase tracking-wider text-outline font-bold mb-1.5">Trending Swaps</p>
                   <div className="flex flex-wrap gap-1.5">
                     {TRENDING_SEARCHES.map((s) => (
                       <button
                         key={s}
                         type="button"
                         onClick={() => goSearch(s)}
-                        className="px-2.5 py-1 rounded-full bg-paper text-xs hover:bg-sage-tint"
+                        className="px-2.5 py-1 rounded-full bg-surface-container-low text-[11px] font-medium text-on-surface hover:bg-primary-fixed hover:text-primary transition-colors"
                       >
                         {s}
                       </button>
@@ -229,42 +228,103 @@ export default function Navbar() {
             </form>
           </div>
 
-          <div className="flex items-center gap-2">
+          {/* Desktop Nav Links */}
+          <nav className="hidden xl:flex items-center gap-1.5">
+            <Link
+              href="/listings"
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                pathname.startsWith('/listings') && pathname !== '/listings/new'
+                  ? 'bg-primary-container text-white shadow-sm'
+                  : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low'
+              }`}
+            >
+              Explore
+            </Link>
+            <Link
+              href="/offers"
+              className={`relative px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                pathname.startsWith('/offers')
+                  ? 'bg-primary-container text-white shadow-sm'
+                  : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low'
+              }`}
+            >
+              Offers & Swaps
+              {unread > 0 && (
+                <span className="ml-1.5 inline-flex items-center justify-center px-1.5 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-bold text-[10px]">
+                  {unread}
+                </span>
+              )}
+            </Link>
+            <Link
+              href="/messages"
+              className={`relative px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                pathname.startsWith('/messages')
+                  ? 'bg-primary-container text-white shadow-sm'
+                  : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low'
+              }`}
+            >
+              Messages
+              {chatUnread > 0 && (
+                <span className="ml-1.5 inline-flex items-center justify-center px-1.5 py-0.5 rounded-full bg-primary text-white font-bold text-[10px]">
+                  {chatUnread}
+                </span>
+              )}
+            </Link>
+            <Link
+              href="/dashboard"
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                pathname === '/dashboard'
+                  ? 'bg-primary-container text-white shadow-sm'
+                  : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low'
+              }`}
+            >
+              My Ads
+            </Link>
+            <Link
+              href="/favorites"
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                pathname === '/favorites'
+                  ? 'bg-primary-container text-white shadow-sm'
+                  : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low'
+              }`}
+            >
+              Favorites
+            </Link>
+          </nav>
+
+          {/* Right Action Buttons */}
+          <div className="flex items-center gap-2 shrink-0">
             <Link
               href="/listings/new"
-              className="hidden sm:inline-flex items-center gap-1.5 px-4 h-10 bg-gold hover:bg-[#c49212] text-ink text-sm font-bold rounded-full transition-colors"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-secondary hover:bg-secondary-container text-white text-xs font-bold shadow-[0_4px_14px_rgba(113,42,226,0.3)] transition-all transform hover:-translate-y-0.5"
             >
               <PlusCircle className="w-4 h-4" />
-              SELL
+              <span>Post Barter</span>
             </Link>
 
             {user ? (
-              <>
-                <Link href="/dashboard" className="p-2 rounded-lg text-ink hover:bg-paper" title="My ads">
-                  <LayoutGrid className="w-5 h-5" />
-                </Link>
-                <Link href="/favorites" className="p-2 rounded-lg text-ink hover:bg-paper" title="Favorites">
-                  <Heart className="w-5 h-5" />
-                </Link>
+              <div className="flex items-center gap-1.5">
+                {/* Notifications Dropdown */}
                 <div className="relative">
                   <button
                     onClick={() => setNotesOpen(!notesOpen)}
-                    className="p-2 rounded-lg text-ink hover:bg-paper relative"
+                    className="p-2 rounded-full text-on-surface hover:bg-surface-container relative transition-colors"
                     aria-label="Notifications"
                   >
-                    <Bell className="w-5 h-5" />
+                    <Bell className="w-4 h-4" />
                     {unread > 0 && (
-                      <span className="absolute top-1 right-1 min-w-[16px] h-4 px-1 rounded-full bg-clay text-white text-[10px] leading-4 text-center">
+                      <span className="absolute top-1 right-1 min-w-[16px] h-4 px-1 rounded-full bg-clay text-white text-[10px] leading-4 text-center font-bold">
                         {unread}
                       </span>
                     )}
                   </button>
+
                   {notesOpen && (
-                    <div className="absolute right-0 mt-2 w-80 bg-surface border border-ink/10 rounded-xl shadow-lift p-2 z-50">
-                      <div className="flex items-center justify-between px-2 py-1">
-                        <span className="text-xs font-bold">Notifications</span>
+                    <div className="absolute right-0 mt-2 w-80 bg-surface-container-lowest border border-outline-variant/50 rounded-2xl shadow-modal p-3 z-50">
+                      <div className="flex items-center justify-between pb-2 border-b border-outline-variant/30">
+                        <span className="text-xs font-bold text-on-surface">Notifications</span>
                         <button
-                          className="text-[11px] text-sage"
+                          className="text-[11px] text-primary font-semibold hover:underline"
                           onClick={() => {
                             fetch('/api/notifications', {
                               method: 'PATCH',
@@ -278,84 +338,139 @@ export default function Navbar() {
                           Mark all read
                         </button>
                       </div>
-                      <div className="max-h-72 overflow-y-auto">
-                        {notes.length === 0 && <p className="text-xs text-mist p-3">No notifications yet.</p>}
+                      <div className="max-h-72 overflow-y-auto pt-2 space-y-1">
+                        {notes.length === 0 && (
+                          <p className="text-xs text-outline p-3 text-center">No notifications yet.</p>
+                        )}
                         {notes.map((n) => (
                           <Link
                             key={n.id}
                             href={n.href || '/offers'}
                             onClick={() => setNotesOpen(false)}
-                            className={`block p-2 rounded-lg text-xs hover:bg-paper ${n.isRead ? 'opacity-70' : ''}`}
+                            className={`block p-2 rounded-xl text-xs hover:bg-surface-container-low transition-colors ${
+                              n.isRead ? 'opacity-65' : 'bg-surface-container/50 font-medium'
+                            }`}
                           >
-                            <p className="font-semibold">{n.title}</p>
-                            <p className="text-mist line-clamp-2">{n.body}</p>
+                            <p className="font-semibold text-on-surface">{n.title}</p>
+                            <p className="text-outline line-clamp-2 mt-0.5">{n.body}</p>
                           </Link>
                         ))}
                       </div>
                     </div>
                   )}
                 </div>
-                <Link href="/messages" className="p-2 rounded-lg text-ink hover:bg-paper relative" title="Chat">
-                  <MessageSquare className="w-5 h-5" />
-                  {chatUnread > 0 && (
-                    <span className="absolute top-1 right-1 min-w-[16px] h-4 px-1 rounded-full bg-sage text-white text-[10px] leading-4 text-center">
-                      {chatUnread}
-                    </span>
-                  )}
-                </Link>
-                <Link href={`/profile/${user.id}`} className="flex items-center gap-2 pl-2 border-l border-ink/10">
-                  <div className="w-8 h-8 rounded-full overflow-hidden bg-sage-tint">
+
+                {/* Profile Avatar */}
+                <Link
+                  href={`/profile/${user.id}`}
+                  className="flex items-center gap-1.5 p-1 rounded-full hover:bg-surface-container transition-colors"
+                  title="My Profile"
+                >
+                  <div className="w-8 h-8 rounded-full overflow-hidden bg-primary-fixed border border-primary/20 flex items-center justify-center text-primary font-bold text-xs">
                     {user.avatar ? (
                       <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
                     ) : (
-                      <UserIcon className="w-4 h-4 m-2 text-sage" />
+                      user.name.slice(0, 1)
                     )}
                   </div>
-                  <span className="hidden xl:flex items-center gap-1 text-xs font-semibold">
-                    {user.name}
-                    {user.isVerified && <CheckCircle2 className="w-3 h-3 text-sage" />}
-                  </span>
                 </Link>
-                <button onClick={handleLogout} className="p-1.5 text-mist hover:text-clay" title="Sign out">
+
+                <button
+                  onClick={handleLogout}
+                  className="p-2 text-outline hover:text-clay rounded-full hover:bg-surface-container transition-colors"
+                  title="Sign out"
+                >
                   <LogOut className="w-4 h-4" />
                 </button>
-              </>
+              </div>
             ) : (
-              <Link href="/login" className="px-3 py-2 text-sm font-semibold hover:text-sage">
-                Sign in
-              </Link>
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/login"
+                  className="px-3.5 py-1.5 text-xs font-bold text-primary hover:bg-surface-container-low rounded-full transition-colors"
+                >
+                  Sign In
+                </Link>
+              </div>
             )}
 
+            {/* Mobile Hamburger */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-lg hover:bg-paper"
-              aria-label="Menu"
+              className="xl:hidden p-2 rounded-full text-on-surface hover:bg-surface-container"
+              aria-label="Toggle menu"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
       </div>
 
+      {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-t border-ink/10 bg-surface px-4 py-4 space-y-3">
-          <form onSubmit={handleSearchSubmit}>
-            <input
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search listings"
-              className="w-full px-3 py-2 rounded-xl bg-paper border border-ink/10 text-sm"
-            />
-          </form>
-          <Link href="/listings" onClick={() => setMobileMenuOpen(false)} className="block py-2 font-medium">
-            Browse ads
-          </Link>
-          <Link href="/favorites" onClick={() => setMobileMenuOpen(false)} className="block py-2 font-medium">
-            Favorites
-          </Link>
-          <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="block py-2 font-medium">
-            My ads
-          </Link>
+        <div className="xl:hidden border-t border-outline-variant/40 bg-surface-container-lowest px-4 py-4 space-y-3">
+          <div className="flex items-center gap-2 pb-3 border-b border-outline-variant/30">
+            <MapPin className="w-4 h-4 text-primary" />
+            <select
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              className="bg-surface-container-low text-xs font-semibold px-2 py-1 rounded-lg border-none focus:outline-none"
+            >
+              {CITIES.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <nav className="space-y-1">
+            <Link
+              href="/listings"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block px-3 py-2 rounded-xl text-xs font-semibold hover:bg-surface-container-low"
+            >
+              Explore Listings
+            </Link>
+            <Link
+              href="/offers"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold hover:bg-surface-container-low"
+            >
+              <span>Offers & Swaps</span>
+              {unread > 0 && (
+                <span className="px-2 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-bold text-[10px]">
+                  {unread}
+                </span>
+              )}
+            </Link>
+            <Link
+              href="/messages"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold hover:bg-surface-container-low"
+            >
+              <span>Messages</span>
+              {chatUnread > 0 && (
+                <span className="px-2 py-0.5 rounded-full bg-primary text-white font-bold text-[10px]">
+                  {chatUnread}
+                </span>
+              )}
+            </Link>
+            <Link
+              href="/dashboard"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block px-3 py-2 rounded-xl text-xs font-semibold hover:bg-surface-container-low"
+            >
+              My Ads Desk
+            </Link>
+            <Link
+              href="/favorites"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block px-3 py-2 rounded-xl text-xs font-semibold hover:bg-surface-container-low"
+            >
+              Saved Listings
+            </Link>
+          </nav>
         </div>
       )}
     </header>

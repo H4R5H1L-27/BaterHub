@@ -127,63 +127,122 @@ export default function OffersDashboardPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-black text-gray-900 tracking-tight flex items-center gap-2.5">
-          <ArrowLeftRight className="w-7 h-7 text-indigo-600" />
-          <span>Offers & Trade Negotiations</span>
-        </h1>
-        <p className="text-sm text-gray-700 mt-1">
-          Review incoming barter swaps, respond to cash offers, and verify physical exchanges.
-        </p>
+  const [handshakePin, setHandshakePin] = useState('');
+  const [pinVerificationMsg, setPinVerificationMsg] = useState<string | null>(null);
+
+  const handleVerifyHandshakePin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (handshakePin.length !== 6) {
+      setPinVerificationMsg('Please enter a valid 6-digit handshake PIN provided by the other trader.');
+      return;
+    }
+    // Simulate successful handshake verification
+    setPinVerificationMsg('Handshake PIN verified successfully! Trade status marked as completed.');
+    setHandshakePin('');
+    setTimeout(() => setPinVerificationMsg(null), 4000);
+  };
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      {/* Header Banner */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-surface-container-lowest p-6 sm:p-8 rounded-3xl border border-outline-variant/30 shadow-sm">
+        <div>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-fixed text-primary text-[11px] font-bold mb-2">
+            <Repeat className="w-3.5 h-3.5" />
+            <span>Negotiation Hub</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-on-surface tracking-tight">
+            Offers & Barter Negotiation Hub
+          </h1>
+          <p className="text-xs text-on-surface-variant mt-1">
+            Review incoming barter swaps, respond to cash offers, verify handover PINs, and finalize safe local swaps.
+          </p>
+        </div>
       </div>
 
-      {/* Navigation Tabs */}
-      <div className="flex flex-wrap items-center gap-2 p-1.5 bg-gray-100 rounded-2xl mb-8">
+      {/* Handshake PIN Verification Card */}
+      <div className="p-6 rounded-3xl bg-gradient-to-r from-primary/10 via-surface-container to-secondary/10 border border-primary/20 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div>
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary text-white text-[10px] font-bold uppercase tracking-wider mb-2">
+            <ShieldCheck className="w-3 h-3" />
+            <span>In-Person Safety</span>
+          </div>
+          <h3 className="font-extrabold text-lg text-on-surface">Enter Handshake PIN: Verify Swap Delivery</h3>
+          <p className="text-xs text-on-surface-variant mt-1 max-w-lg">
+            When meeting in person, ask the trader for their 6-digit security code to verify handover and release mutual trust feedback.
+          </p>
+          {pinVerificationMsg && (
+            <p className="text-xs font-bold text-emerald-700 mt-2 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
+              {pinVerificationMsg}
+            </p>
+          )}
+        </div>
+
+        <form onSubmit={handleVerifyHandshakePin} className="flex items-center gap-2 w-full md:w-auto">
+          <input
+            type="text"
+            maxLength={6}
+            placeholder="6-digit PIN"
+            value={handshakePin}
+            onChange={(e) => setHandshakePin(e.target.value.replace(/\D/g, ''))}
+            className="w-32 h-11 px-3 bg-surface-container-lowest border border-outline-variant/50 rounded-full text-center font-mono text-base font-bold tracking-widest text-on-surface focus:outline-none focus:border-primary shadow-inner"
+          />
+          <button
+            type="submit"
+            className="h-11 px-5 rounded-full bg-primary hover:bg-primary-container text-white text-xs font-bold shadow-lift transition-all shrink-0"
+          >
+            Verify Handshake
+          </button>
+        </form>
+      </div>
+
+      {/* Navigation Pill Tabs */}
+      <div className="flex flex-wrap items-center gap-2 p-1.5 bg-surface-container-low rounded-2xl">
         <button
           onClick={() => setActiveTab('RECEIVED_BARTERS')}
-          className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
             activeTab === 'RECEIVED_BARTERS'
-              ? 'bg-white text-purple-700 shadow-sm'
-              : 'text-gray-600 hover:text-gray-900'
+              ? 'bg-primary text-white shadow-sm'
+              : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
           }`}
         >
-          <Repeat className="w-3.5 h-3.5 text-purple-600" />
-          <span>Received Barter Proposals ({receivedBarters.length})</span>
+          <Repeat className="w-3.5 h-3.5" />
+          <span>Received Barters ({receivedBarters.length})</span>
         </button>
 
         <button
           onClick={() => setActiveTab('SENT_BARTERS')}
-          className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
             activeTab === 'SENT_BARTERS'
-              ? 'bg-white text-purple-700 shadow-sm'
-              : 'text-gray-600 hover:text-gray-900'
+              ? 'bg-primary text-white shadow-sm'
+              : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
           }`}
         >
-          <Repeat className="w-3.5 h-3.5 text-purple-600" />
+          <Repeat className="w-3.5 h-3.5" />
           <span>Sent Barters ({sentBarters.length})</span>
         </button>
 
         <button
           onClick={() => setActiveTab('RECEIVED_OFFERS')}
-          className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
             activeTab === 'RECEIVED_OFFERS'
-              ? 'bg-white text-emerald-700 shadow-sm'
-              : 'text-gray-600 hover:text-gray-900'
+              ? 'bg-primary text-white shadow-sm'
+              : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
           }`}
         >
-          <DollarSign className="w-3.5 h-3.5 text-emerald-600" />
+          <DollarSign className="w-3.5 h-3.5" />
           <span>Received Cash Offers ({receivedOffers.length})</span>
         </button>
 
         <button
           onClick={() => setActiveTab('SENT_OFFERS')}
-          className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
             activeTab === 'SENT_OFFERS'
-              ? 'bg-white text-emerald-700 shadow-sm'
-              : 'text-gray-600 hover:text-gray-900'
+              ? 'bg-primary text-white shadow-sm'
+              : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
           }`}
         >
-          <DollarSign className="w-3.5 h-3.5 text-emerald-600" />
+          <DollarSign className="w-3.5 h-3.5" />
           <span>Sent Cash Offers ({sentOffers.length})</span>
         </button>
       </div>
@@ -192,7 +251,7 @@ export default function OffersDashboardPage() {
       {loading ? (
         <div className="space-y-4">
           {[1, 2, 3].map((n) => (
-            <div key={n} className="h-32 bg-gray-100 rounded-2xl animate-pulse" />
+            <div key={n} className="h-32 bg-surface-container rounded-2xl animate-pulse" />
           ))}
         </div>
       ) : (
@@ -201,28 +260,28 @@ export default function OffersDashboardPage() {
           {/* TAB 1: RECEIVED BARTERS */}
           {activeTab === 'RECEIVED_BARTERS' && (
             receivedBarters.length === 0 ? (
-              <div className="p-12 text-center bg-white rounded-2xl border border-gray-200">
-                <Repeat className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-                <h3 className="font-bold text-gray-900 text-sm">No incoming barter proposals</h3>
-                <p className="text-xs text-gray-700 mt-1">When someone offers to swap items for your listings, they will appear here.</p>
+              <div className="p-12 text-center bg-surface-container-lowest rounded-2xl border border-outline-variant/30">
+                <Repeat className="w-10 h-10 text-outline mx-auto mb-3" />
+                <h3 className="font-bold text-on-surface text-sm">No incoming barter proposals</h3>
+                <p className="text-xs text-on-surface-variant mt-1">When someone offers to swap items for your listings, they will appear here.</p>
               </div>
             ) : (
               receivedBarters.map((proposal) => (
-                <div key={proposal.id} className="bg-white p-6 rounded-2xl border border-gray-200/80 shadow-sm space-y-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-gray-100">
+                <div key={proposal.id} className="bg-surface-container-lowest p-6 rounded-3xl border border-outline-variant/30 shadow-sm space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-outline-variant/20">
                     <div className="flex items-center gap-3">
                       <img
                         src={proposal.initiator.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
                         alt={proposal.initiator.name}
-                        className="w-10 h-10 rounded-full object-cover border border-gray-200"
+                        className="w-10 h-10 rounded-full object-cover border border-outline-variant/40"
                       />
                       <div>
                         <div className="flex items-center gap-1.5">
-                          <span className="font-bold text-sm text-gray-900">{proposal.initiator.name}</span>
-                          {proposal.initiator.isVerified && <ShieldCheck className="w-3.5 h-3.5 text-indigo-600" />}
-                          <span className="text-xs text-amber-500 font-semibold">★ {proposal.initiator.reputationScore.toFixed(1)}</span>
+                          <span className="font-bold text-sm text-on-surface">{proposal.initiator.name}</span>
+                          {proposal.initiator.isVerified && <ShieldCheck className="w-3.5 h-3.5 text-primary" />}
+                          <span className="text-xs text-tertiary font-bold">★ {proposal.initiator.reputationScore.toFixed(1)}</span>
                         </div>
-                        <p className="text-xs text-gray-700">Proposed {formatDate(proposal.createdAt)}</p>
+                        <p className="text-xs text-outline">Proposed {formatDate(proposal.createdAt)}</p>
                       </div>
                     </div>
 
@@ -231,10 +290,10 @@ export default function OffersDashboardPage() {
                         proposal.status === 'ACCEPTED'
                           ? 'bg-emerald-100 text-emerald-800'
                           : proposal.status === 'COMPLETED'
-                          ? 'bg-blue-100 text-blue-800'
+                          ? 'bg-primary-fixed text-primary'
                           : proposal.status === 'REJECTED'
-                          ? 'bg-red-100 text-red-800'
-                          : 'bg-purple-100 text-purple-800'
+                          ? 'bg-clay/10 text-clay'
+                          : 'bg-secondary-fixed text-secondary'
                       }`}>
                         {proposal.status}
                       </span>

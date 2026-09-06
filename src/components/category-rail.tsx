@@ -34,12 +34,12 @@ export default function CategoryRail() {
           <Link
             key={cat.slug}
             href={cat.href}
-            className="group flex flex-col items-center gap-2 p-3 rounded-2xl bg-surface border border-ink/10 hover:border-sage/40 hover:shadow-card transition-all duration-200"
+            className="group flex flex-col items-center gap-2.5 p-3.5 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 hover:border-primary/40 hover:shadow-lift hover:-translate-y-0.5 transition-all duration-200"
           >
-            <span className="w-11 h-11 rounded-2xl bg-sage-tint text-sage flex items-center justify-center group-hover:bg-sage group-hover:text-surface transition-colors">
+            <span className="w-12 h-12 rounded-2xl bg-primary-fixed text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all shadow-2xs">
               <Icon className="w-5 h-5" />
             </span>
-            <span className="text-[11px] font-semibold text-ink text-center leading-tight">{cat.label}</span>
+            <span className="text-[11px] font-bold text-on-surface text-center leading-tight group-hover:text-primary transition-colors">{cat.label}</span>
           </Link>
         );
       })}

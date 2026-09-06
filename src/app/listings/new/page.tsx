@@ -2,29 +2,36 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { 
   BookOpen, 
   Package, 
   Repeat, 
   DollarSign, 
-  UploadCloud, 
   Plus, 
   Trash2, 
   Sparkles, 
   AlertCircle, 
   CheckCircle2,
-  ArrowLeft
+  ArrowLeft,
+  ArrowRight,
+  ShieldCheck,
+  MapPin,
+  Heart,
+  Star,
+  Check,
+  X,
+  Zap
 } from 'lucide-react';
-import Link from 'next/link';
 
 export default function NewListingPage() {
   const router = useRouter();
 
-  const [listingType, setListingType] = useState<'BOOK' | 'PRODUCT'>('BOOK');
+  const [listingType, setListingType] = useState<'BOOK' | 'PRODUCT'>('PRODUCT');
   const [exchangeType, setExchangeType] = useState<'HYBRID' | 'BARTER_ONLY' | 'CASH_ONLY'>('HYBRID');
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [price, setPrice] = useState('');
+  const [title, setTitle] = useState('Sony WH-1000XM5 Noise-Canceling Headphones');
+  const [description, setDescription] = useState('Purchased 4 months ago for study sessions. Includes carrying case, USB-C braid cable, 3.5mm jack, and original retail box. Battery health tested at 98%.');
+  const [price, setPrice] = useState('280');
   const [isNegotiable, setIsNegotiable] = useState(true);
   const [condition, setCondition] = useState('LIKE_NEW');
   const [city, setCity] = useState('New York');
@@ -32,9 +39,18 @@ export default function NewListingPage() {
   const [pickupAvailable, setPickupAvailable] = useState(true);
   const [shippingAvailable, setShippingAvailable] = useState(false);
   const [shippingCost, setShippingCost] = useState('4.00');
-  const [barterWishlist, setBarterWishlist] = useState('');
+  const [barterWishlist, setBarterWishlist] = useState('Kindle Paperwhite, Mech Keyboards, iPad Mini');
+  const [wishlistTags, setWishlistTags] = useState<string[]>([
+    'Kindle Paperwhite 11th Gen',
+    'Mechanical Keyboards (75%)',
+    'iPad Mini 6 (WiFi)'
+  ]);
+  const [tagInput, setTagInput] = useState('');
+  const [handoverSpot, setHandoverSpot] = useState('Campus Safe Spot');
   const [imageUrl, setImageUrl] = useState('');
-  const [images, setImages] = useState<string[]>([]);
+  const [images, setImages] = useState<string[]>([
+    'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80'
+  ]);
 
   // Book specific
   const [author, setAuthor] = useState('');
@@ -47,13 +63,37 @@ export default function NewListingPage() {
 
   // Product specific
   const [category, setCategory] = useState('Electronics');
-  const [brand, setBrand] = useState('');
-  const [model, setModel] = useState('');
-  const [includesOriginalBox, setIncludesOriginalBox] = useState(false);
-  const [includesAccessories, setIncludesAccessories] = useState(false);
+  const [brand, setBrand] = useState('Sony');
+  const [model, setModel] = useState('WH-1000XM5 (Silver)');
+  const [includesOriginalBox, setIncludesOriginalBox] = useState(true);
+  const [includesAccessories, setIncludesAccessories] = useState(true);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const handleSwitchCategory = (type: 'BOOK' | 'PRODUCT') => {
+    setListingType(type);
+    if (type === 'BOOK') {
+      setTitle('Principles of Neural Science, Sixth Edition');
+      setAuthor('Eric R. Kandel');
+      setIsbn('978-1259642234');
+      setGenre('Biological Sciences');
+      setPrice('145');
+      setDescription('Standard comprehensive medical & neuroscience reference text. Clean pages with zero highlighting. Includes digital access code scratcher.');
+      setImages(['https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=800&auto=format&fit=crop&q=80']);
+      setWishlistTags(['Organic Chemistry 8th Ed', 'Clinical Neurology Atlas', 'Stethoscope']);
+      setBarterWishlist('Organic Chemistry 8th Ed, Clinical Neurology Atlas');
+    } else {
+      setTitle('Sony WH-1000XM5 Noise-Canceling Headphones');
+      setBrand('Sony');
+      setModel('WH-1000XM5 (Silver)');
+      setPrice('280');
+      setDescription('Purchased 4 months ago for study sessions. Includes carrying case, USB-C braid cable, 3.5mm jack, and original retail box. Battery health tested at 98%.');
+      setImages(['https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80']);
+      setWishlistTags(['Kindle Paperwhite 11th Gen', 'Mechanical Keyboards (75%)', 'iPad Mini 6 (WiFi)']);
+      setBarterWishlist('Kindle Paperwhite, Mech Keyboards, iPad Mini');
+    }
+  };
 
   const handleAddImage = () => {
     if (imageUrl.trim()) {
@@ -64,6 +104,39 @@ export default function NewListingPage() {
 
   const handleRemoveImage = (index: number) => {
     setImages(images.filter((_, i) => i !== index));
+  };
+
+  const handleAddTag = (e?: React.KeyboardEvent) => {
+    if (e && e.key !== 'Enter') return;
+    if (e) e.preventDefault();
+    if (tagInput.trim() && !wishlistTags.includes(tagInput.trim())) {
+      const updated = [...wishlistTags, tagInput.trim()];
+      setWishlistTags(updated);
+      setBarterWishlist(updated.join(', '));
+      setTagInput('');
+    }
+  };
+
+  const handleRemoveTag = (tag: string) => {
+    const updated = wishlistTags.filter(t => t !== tag);
+    setWishlistTags(updated);
+    setBarterWishlist(updated.join(', '));
+  };
+
+  const handleQuickAddTag = (tag: string) => {
+    if (!wishlistTags.includes(tag)) {
+      const updated = [...wishlistTags, tag];
+      setWishlistTags(updated);
+      setBarterWishlist(updated.join(', '));
+    }
+  };
+
+  const conditionLabels: Record<string, { label: string; desc: string }> = {
+    BRAND_NEW: { label: 'Brand New', desc: 'Sealed in box' },
+    LIKE_NEW: { label: 'Mint 9/10', desc: 'Zero scratches' },
+    VERY_GOOD: { label: 'Very Good', desc: 'Light gentle use' },
+    GOOD: { label: 'Good', desc: 'Fully functional' },
+    ACCEPTABLE: { label: 'Acceptable', desc: 'Heavy wear, works' }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -145,430 +218,647 @@ export default function NewListingPage() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      
-      <div className="mb-6 flex items-center justify-between">
-        <Link
-          href="/listings"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-indigo-600 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" /> Cancel & Return
-        </Link>
-      </div>
-
-      <div className="bg-white rounded-3xl border border-gray-200/80 shadow-xl overflow-hidden">
-        
-        {/* Banner Header */}
-        <div className="px-8 py-6 bg-gradient-to-r from-indigo-600 to-violet-600 text-white">
-          <h1 className="text-2xl font-black tracking-tight">Create a New Listing</h1>
-          <p className="text-xs text-indigo-100 mt-1">
-            Choose book or general product, define trade and cash terms, and connect with peer exchangers.
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+      {/* Top Breadcrumb & Actions */}
+      <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2 text-tertiary mb-1">
+            <Zap className="w-4 h-4 text-tertiary" />
+            <span className="text-[11px] uppercase tracking-wider font-bold">Peer-To-Peer Direct Swap</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-on-surface tracking-tight">Publish a Barter Ad</h1>
+          <p className="text-xs sm:text-sm text-on-surface-variant mt-1">
+            List your tech gear or books, set valuation, and discover verified swap matches.
           </p>
         </div>
+        
+        <div className="flex items-center gap-2 shrink-0 self-start md:self-auto">
+          <Link
+            href="/listings"
+            className="px-4 py-2 rounded-full bg-surface-container-lowest text-on-surface font-semibold text-xs border border-outline-variant/30 hover:bg-surface-container transition-all flex items-center gap-1.5"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" /> Return to Catalog
+          </Link>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-high text-on-surface text-xs font-medium">
+            <span className="w-2 h-2 rounded-full bg-tertiary-container animate-ping"></span>
+            Auto-saving draft
+          </span>
+        </div>
+      </div>
 
-        {error && (
-          <div className="m-6 p-4 bg-red-50 border border-red-200 rounded-2xl text-red-700 text-xs flex items-start gap-2.5">
-            <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-            <span>{error}</span>
+      {/* Multi-Step Indicator */}
+      <div className="bg-surface-container-lowest p-4 sm:p-5 rounded-2xl border border-outline-variant/20 shadow-sm mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-primary text-on-primary flex items-center justify-center font-bold text-sm shadow-sm shrink-0">
+              01
+            </div>
+            <div className="min-w-0">
+              <span className="block text-[11px] uppercase tracking-wider text-primary font-bold">Step 1</span>
+              <p className="text-xs sm:text-sm font-semibold text-on-surface truncate">Category & Details</p>
+            </div>
           </div>
-        )}
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-surface-container-high text-on-surface-variant flex items-center justify-center font-bold text-sm shrink-0">
+              02
+            </div>
+            <div className="min-w-0">
+              <span className="block text-[11px] uppercase tracking-wider text-outline font-bold">Step 2</span>
+              <p className="text-xs sm:text-sm font-semibold text-on-surface truncate">Photos & Proof</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-surface-container-high text-on-surface-variant flex items-center justify-center font-bold text-sm shrink-0">
+              03
+            </div>
+            <div className="min-w-0">
+              <span className="block text-[11px] uppercase tracking-wider text-outline font-bold">Step 3</span>
+              <p className="text-xs sm:text-sm font-semibold text-on-surface truncate">Wishlist & Offset</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-surface-container-high text-on-surface-variant flex items-center justify-center font-bold text-sm shrink-0">
+              04
+            </div>
+            <div className="min-w-0">
+              <span className="block text-[11px] uppercase tracking-wider text-outline font-bold">Step 4</span>
+              <p className="text-xs sm:text-sm font-semibold text-on-surface truncate">Handover & Safe Spots</p>
+            </div>
+          </div>
+        </div>
+        <div className="w-full bg-surface-container h-1.5 rounded-full mt-4 overflow-hidden">
+          <div className="bg-primary h-full rounded-full transition-all duration-300 w-2/3"></div>
+        </div>
+      </div>
 
-        <form onSubmit={handleSubmit} className="p-8 space-y-8">
+      {error && (
+        <div className="mb-6 p-4 bg-error-container/40 border border-error/30 rounded-2xl text-on-error-container text-xs flex items-start gap-2.5">
+          <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0 text-error" />
+          <span>{error}</span>
+        </div>
+      )}
+
+      {/* Main 2-Column Split */}
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        {/* Left Column: Form Configuration (7 cols) */}
+        <div className="lg:col-span-7 space-y-6">
           
-          {/* Step 1: Listing Type Selector */}
-          <div>
-            <label className="block text-xs font-bold text-gray-900 uppercase tracking-wider mb-3">
-              1. What are you listing?
-            </label>
-            <div className="grid grid-cols-2 gap-4">
+          {/* Category Switcher Pill */}
+          <div className="bg-surface-container-lowest p-4 sm:p-5 rounded-2xl border border-outline-variant/20 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[11px] uppercase tracking-wider text-outline font-bold">Category Mode</span>
+              <span className="text-tertiary text-xs font-semibold inline-flex items-center gap-1">
+                <Sparkles className="w-3.5 h-3.5" /> Smart form adapts dynamically
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-2 p-1 bg-surface-container-low rounded-2xl">
               <button
                 type="button"
-                onClick={() => setListingType('BOOK')}
-                className={`p-4 rounded-2xl border-2 flex items-center gap-3 transition-all ${
-                  listingType === 'BOOK'
-                    ? 'border-indigo-600 bg-indigo-50/50 text-indigo-950 font-bold shadow-sm'
-                    : 'border-gray-200 hover:border-gray-300 text-gray-600'
-                }`}
-              >
-                <div className="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center flex-shrink-0">
-                  <BookOpen className="w-5 h-5" />
-                </div>
-                <div className="text-left">
-                  <p className="text-sm font-bold text-gray-900">Book or Textbook</p>
-                  <p className="text-xs text-gray-500">ISBN, author, genre & syllabus tags</p>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setListingType('PRODUCT')}
-                className={`p-4 rounded-2xl border-2 flex items-center gap-3 transition-all ${
+                onClick={() => handleSwitchCategory('PRODUCT')}
+                className={`flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
                   listingType === 'PRODUCT'
-                    ? 'border-indigo-600 bg-indigo-50/50 text-indigo-950 font-bold shadow-sm'
-                    : 'border-gray-200 hover:border-gray-300 text-gray-600'
+                    ? 'bg-primary text-on-primary shadow-sm'
+                    : 'text-on-surface-variant hover:text-on-surface'
                 }`}
               >
-                <div className="w-10 h-10 rounded-xl bg-violet-100 text-violet-600 flex items-center justify-center flex-shrink-0">
-                  <Package className="w-5 h-5" />
-                </div>
-                <div className="text-left">
-                  <p className="text-sm font-bold text-gray-900">Gear or Product</p>
-                  <p className="text-xs text-gray-500">Electronics, gaming, board games, audio</p>
-                </div>
+                <Package className="w-4 h-4" />
+                <span>Tech & Electronics</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSwitchCategory('BOOK')}
+                className={`flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+                  listingType === 'BOOK'
+                    ? 'bg-primary text-on-primary shadow-sm'
+                    : 'text-on-surface-variant hover:text-on-surface'
+                }`}
+              >
+                <BookOpen className="w-4 h-4" />
+                <span>Textbooks & Books</span>
               </button>
             </div>
           </div>
 
-          {/* Step 2: Exchange Type (Barter vs Cash vs Hybrid) */}
-          <div className="pt-6 border-t border-gray-100">
-            <label className="block text-xs font-bold text-gray-900 uppercase tracking-wider mb-3">
-              2. Exchange Preference
-            </label>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {[
-                {
-                  type: 'HYBRID',
-                  label: 'Cash or Barter',
-                  desc: 'Accept cash offers OR trade proposals',
-                  color: 'indigo',
-                },
-                {
-                  type: 'BARTER_ONLY',
-                  label: 'Barter Only',
-                  desc: 'Item-for-item swap only (no cash price)',
-                  color: 'purple',
-                },
-                {
-                  type: 'CASH_ONLY',
-                  label: 'Cash Only',
-                  desc: 'Standard sale / direct purchase',
-                  color: 'emerald',
-                },
-              ].map((m) => (
-                <button
-                  key={m.type}
-                  type="button"
-                  onClick={() => setExchangeType(m.type as any)}
-                  className={`p-4 rounded-2xl border-2 text-left transition-all ${
-                    exchangeType === m.type
-                      ? 'border-indigo-600 bg-indigo-50/40 shadow-sm'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  <p className="text-xs font-bold text-gray-900">{m.label}</p>
-                  <p className="text-[11px] text-gray-500 mt-1">{m.desc}</p>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Step 3: Core Information */}
-          <div className="pt-6 border-t border-gray-100 space-y-4">
-            <label className="block text-xs font-bold text-gray-900 uppercase tracking-wider">
-              3. Item Details
-            </label>
-
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">Listing Title *</label>
-              <input
-                type="text"
-                required
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder={listingType === 'BOOK' ? 'e.g. Designing Data-Intensive Applications (Paperback)' : 'e.g. Sony WH-1000XM4 Wireless Headphones'}
-                className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-              />
-            </div>
-
-            {/* Book Specific Fields */}
-            {listingType === 'BOOK' && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">Author *</label>
-                  <input
-                    type="text"
-                    required
-                    value={author}
-                    onChange={(e) => setAuthor(e.target.value)}
-                    placeholder="e.g. Martin Kleppmann"
-                    className="w-full px-3.5 py-2 bg-white border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-indigo-500"
-                  />
+          {/* Section 1: Item Identity & Specs */}
+          <div className="bg-surface-container-lowest p-5 sm:p-6 rounded-2xl border border-outline-variant/20 shadow-sm space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-outline-variant/10">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-primary-fixed text-primary flex items-center justify-center">
+                  <Package className="w-4 h-4" />
                 </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">ISBN / ISBN-13</label>
-                  <input
-                    type="text"
-                    value={isbn}
-                    onChange={(e) => setIsbn(e.target.value)}
-                    placeholder="e.g. 978-1449373320"
-                    className="w-full px-3.5 py-2 bg-white border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-indigo-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">Genre / Category</label>
-                  <select
-                    value={genre}
-                    onChange={(e) => setGenre(e.target.value)}
-                    className="w-full px-3.5 py-2 bg-white border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-indigo-500"
-                  >
-                    <option value="Computer Science">Computer Science</option>
-                    <option value="Mathematics">Mathematics</option>
-                    <option value="Biological Sciences">Biological Sciences</option>
-                    <option value="Science Fiction & Fantasy">Science Fiction & Fantasy</option>
-                    <option value="Classic Literature">Classic Literature</option>
-                    <option value="Philosophy">Philosophy</option>
-                    <option value="Business & Finance">Business & Finance</option>
-                    <option value="General Non-Fiction">General Non-Fiction</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">Format</label>
-                  <select
-                    value={bookFormat}
-                    onChange={(e) => setBookFormat(e.target.value)}
-                    className="w-full px-3.5 py-2 bg-white border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-indigo-500"
-                  >
-                    <option value="PAPERBACK">Paperback</option>
-                    <option value="HARDCOVER">Hardcover</option>
-                    <option value="MASS_MARKET">Mass Market Paperback</option>
-                    <option value="SPIRAL">Spiral Bound</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">Academic Subject (Optional)</label>
-                  <input
-                    type="text"
-                    value={academicSubject}
-                    onChange={(e) => setAcademicSubject(e.target.value)}
-                    placeholder="e.g. Systems Architecture"
-                    className="w-full px-3.5 py-2 bg-white border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-indigo-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">Course Code (Optional)</label>
-                  <input
-                    type="text"
-                    value={courseCode}
-                    onChange={(e) => setCourseCode(e.target.value)}
-                    placeholder="e.g. CS 440 / MATH 101"
-                    className="w-full px-3.5 py-2 bg-white border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-indigo-500"
-                  />
-                </div>
+                <h2 className="text-base font-bold text-on-surface">1. Item Identity & Specs</h2>
               </div>
-            )}
-
-            {/* Product Specific Fields */}
-            {listingType === 'PRODUCT' && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">Category</label>
-                  <select
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="w-full px-3.5 py-2 bg-white border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-indigo-500"
-                  >
-                    <option value="Electronics">Electronics</option>
-                    <option value="Computers & Accessories">Computers & Accessories</option>
-                    <option value="Audio & Headphones">Audio & Headphones</option>
-                    <option value="Games & Hobbies">Games & Hobbies</option>
-                    <option value="Office & Study Gear">Office & Study Gear</option>
-                    <option value="Photography">Photography</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">Brand</label>
-                  <input
-                    type="text"
-                    value={brand}
-                    onChange={(e) => setBrand(e.target.value)}
-                    placeholder="e.g. Sony, Apple, Keychron, Logitech"
-                    className="w-full px-3.5 py-2 bg-white border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-indigo-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">Model / Specs</label>
-                  <input
-                    type="text"
-                    value={model}
-                    onChange={(e) => setModel(e.target.value)}
-                    placeholder="e.g. WH-1000XM4, K2 V2"
-                    className="w-full px-3.5 py-2 bg-white border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-indigo-500"
-                  />
-                </div>
-                <div className="flex items-center gap-4 pt-4">
-                  <label className="flex items-center gap-2 text-xs font-semibold text-gray-700 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={includesOriginalBox}
-                      onChange={(e) => setIncludesOriginalBox(e.target.checked)}
-                      className="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4"
-                    />
-                    <span>Original Box Included</span>
-                  </label>
-                </div>
-              </div>
-            )}
-
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">Condition *</label>
-              <select
-                value={condition}
-                onChange={(e) => setCondition(e.target.value)}
-                className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-indigo-500"
-              >
-                <option value="BRAND_NEW">Brand New (Unopened / Sealed)</option>
-                <option value="LIKE_NEW">Like New (Immaculate, no marks or signs of wear)</option>
-                <option value="VERY_GOOD">Very Good (Minimal shelf wear, intact binding)</option>
-                <option value="GOOD">Good (Read or used, minor notes/wear, fully functional)</option>
-                <option value="ACCEPTABLE">Acceptable (Noticeable wear or annotations, complete)</option>
-              </select>
+              <span className="text-[11px] font-bold text-on-surface-variant bg-surface-container px-2.5 py-0.5 rounded-full">
+                Required
+              </span>
             </div>
 
+            {/* Title */}
             <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">Description *</label>
-              <textarea
-                rows={4}
-                required
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Describe condition, reason for selling/trading, what is included, etc."
-                className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-indigo-500 resize-none"
-              />
-            </div>
-
-            {/* Barter Wishlist input */}
-            {exchangeType !== 'CASH_ONLY' && (
-              <div className="p-4 bg-purple-50 rounded-2xl border border-purple-200">
-                <label className="block text-xs font-bold text-purple-900 uppercase tracking-wider mb-1">
-                  What would you like to trade this for? (Barter Wishlist)
-                </label>
+              <label className="block text-xs font-semibold text-on-surface mb-1.5">
+                Listing Title *
+              </label>
+              <div className="relative">
                 <input
                   type="text"
-                  value={barterWishlist}
-                  onChange={(e) => setBarterWishlist(e.target.value)}
-                  placeholder="e.g. Open to trade for Clean Architecture or sci-fi paperbacks"
-                  className="w-full px-3.5 py-2 bg-white border border-purple-300 rounded-xl text-xs focus:outline-none focus:border-purple-600 text-gray-900"
+                  required
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="e.g. Sony WH-1000XM5 Noise-Canceling Headphones"
+                  className="w-full px-4 py-2.5 rounded-xl bg-surface-container-low text-on-surface text-sm border border-transparent focus:border-primary focus:bg-surface-container-lowest focus:outline-none transition-all"
                 />
+                {title.length > 5 && (
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-primary">
+                    <CheckCircle2 className="w-4 h-4" />
+                  </span>
+                )}
               </div>
-            )}
-          </div>
+              <p className="text-[11px] text-on-surface-variant mt-1">
+                Include model edition, colorway, and year for 42% faster circular swaps.
+              </p>
+            </div>
 
-          {/* Step 4: Pricing & Location */}
-          <div className="pt-6 border-t border-gray-100 space-y-4">
-            <label className="block text-xs font-bold text-gray-900 uppercase tracking-wider">
-              4. Price & Meetup Preferences
-            </label>
-
-            {exchangeType !== 'BARTER_ONLY' && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">Asking Price ($ USD) *</label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-2.5 text-gray-400 font-bold">$</span>
+            {/* Dynamic Specifics (Product vs Book) */}
+            {listingType === 'PRODUCT' ? (
+              <div className="space-y-4 pt-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-on-surface mb-1.5">Brand / Maker</label>
                     <input
-                      type="number"
-                      step="0.5"
-                      min="1"
-                      required
-                      value={price}
-                      onChange={(e) => setPrice(e.target.value)}
-                      placeholder="35.00"
-                      className="w-full pl-7 pr-4 py-2 bg-white border border-gray-300 rounded-xl text-sm font-semibold focus:outline-none focus:border-indigo-500"
+                      type="text"
+                      value={brand}
+                      onChange={(e) => setBrand(e.target.value)}
+                      placeholder="e.g. Sony, Apple, Keychron"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-surface-container-low text-on-surface text-xs focus:bg-surface-container-lowest focus:border-primary focus:outline-none transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-on-surface mb-1.5">Model / Edition</label>
+                    <input
+                      type="text"
+                      value={model}
+                      onChange={(e) => setModel(e.target.value)}
+                      placeholder="e.g. WH-1000XM5 (Silver)"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-surface-container-low text-on-surface text-xs focus:bg-surface-container-lowest focus:border-primary focus:outline-none transition-all"
                     />
                   </div>
                 </div>
 
-                <div className="flex items-center pt-6">
-                  <label className="flex items-center gap-2 text-xs font-semibold text-gray-700 cursor-pointer">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-on-surface mb-1.5">Category</label>
+                    <select
+                      value={category}
+                      onChange={(e) => setCategory(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-surface-container-low text-on-surface text-xs focus:bg-surface-container-lowest focus:border-primary focus:outline-none transition-all"
+                    >
+                      <option value="Electronics">Electronics</option>
+                      <option value="Computers & Accessories">Computers & Accessories</option>
+                      <option value="Audio & Headphones">Audio & Headphones</option>
+                      <option value="Games & Hobbies">Games & Hobbies</option>
+                      <option value="Photography">Photography</option>
+                    </select>
+                  </div>
+                  <div className="flex items-center gap-4 pt-6">
+                    <label className="flex items-center gap-2 text-xs font-semibold text-on-surface cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={includesOriginalBox}
+                        onChange={(e) => setIncludesOriginalBox(e.target.checked)}
+                        className="rounded text-primary focus:ring-primary w-4 h-4 accent-primary"
+                      />
+                      <span>Original Box</span>
+                    </label>
+                    <label className="flex items-center gap-2 text-xs font-semibold text-on-surface cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={includesAccessories}
+                        onChange={(e) => setIncludesAccessories(e.target.checked)}
+                        className="rounded text-primary focus:ring-primary w-4 h-4 accent-primary"
+                      />
+                      <span>All Cables & Extras</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4 pt-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-on-surface mb-1.5">Author *</label>
                     <input
-                      type="checkbox"
-                      checked={isNegotiable}
-                      onChange={(e) => setIsNegotiable(e.target.checked)}
-                      className="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4"
+                      type="text"
+                      required
+                      value={author}
+                      onChange={(e) => setAuthor(e.target.value)}
+                      placeholder="e.g. Eric R. Kandel"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-surface-container-low text-on-surface text-xs focus:bg-surface-container-lowest focus:border-primary focus:outline-none transition-all"
                     />
-                    <span>Open to Best Reasonable Cash Offers (OBO)</span>
-                  </label>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-on-surface mb-1.5">ISBN / Edition</label>
+                    <input
+                      type="text"
+                      value={isbn}
+                      onChange={(e) => setIsbn(e.target.value)}
+                      placeholder="e.g. 978-1259642234"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-surface-container-low text-on-surface text-xs focus:bg-surface-container-lowest focus:border-primary focus:outline-none transition-all"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-on-surface mb-1.5">Genre</label>
+                    <select
+                      value={genre}
+                      onChange={(e) => setGenre(e.target.value)}
+                      className="w-full px-3 py-2.5 rounded-xl bg-surface-container-low text-on-surface text-xs focus:bg-surface-container-lowest focus:border-primary focus:outline-none"
+                    >
+                      <option value="Computer Science">Computer Science</option>
+                      <option value="Mathematics">Mathematics</option>
+                      <option value="Biological Sciences">Biological Sciences</option>
+                      <option value="Science Fiction">Science Fiction</option>
+                      <option value="General Non-Fiction">General Non-Fiction</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-on-surface mb-1.5">Book Format</label>
+                    <select
+                      value={bookFormat}
+                      onChange={(e) => setBookFormat(e.target.value)}
+                      className="w-full px-3 py-2.5 rounded-xl bg-surface-container-low text-on-surface text-xs focus:bg-surface-container-lowest focus:border-primary focus:outline-none"
+                    >
+                      <option value="HARDCOVER">Hardcover</option>
+                      <option value="PAPERBACK">Paperback</option>
+                      <option value="SPIRAL">Spiral Bound</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-on-surface mb-1.5">Course Code</label>
+                    <input
+                      type="text"
+                      value={courseCode}
+                      onChange={(e) => setCourseCode(e.target.value)}
+                      placeholder="e.g. CS 440"
+                      className="w-full px-3 py-2.5 rounded-xl bg-surface-container-low text-on-surface text-xs focus:bg-surface-container-lowest focus:border-primary focus:outline-none"
+                    />
+                  </div>
                 </div>
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-4">
+            {/* Condition Selector Grids */}
+            <div className="space-y-2 pt-2">
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-semibold text-on-surface">Condition Grade</label>
+                <span className="text-[11px] font-semibold text-primary">Standardized Rubric</span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {[
+                  { id: 'BRAND_NEW', label: 'Brand New', desc: 'Sealed in box' },
+                  { id: 'LIKE_NEW', label: 'Mint 9/10', desc: 'Zero scratches' },
+                  { id: 'VERY_GOOD', label: 'Very Good', desc: 'Light gentle use' },
+                  { id: 'GOOD', label: 'Fair/Good', desc: 'Fully functional' }
+                ].map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => setCondition(c.id)}
+                    className={`p-3 rounded-xl text-left transition-all ${
+                      condition === c.id
+                        ? 'bg-primary-fixed text-on-primary-fixed shadow-sm ring-1 ring-primary/40'
+                        : 'bg-surface-container-low text-on-surface hover:bg-surface-container'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="block text-xs font-bold">{c.label}</span>
+                      {condition === c.id && <Check className="w-3.5 h-3.5 text-primary" />}
+                    </div>
+                    <span className="block text-[11px] text-on-surface-variant opacity-80 mt-0.5">{c.desc}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Description Box */}
+            <div className="pt-2">
+              <label className="block text-xs font-semibold text-on-surface mb-1.5">
+                Item Description & Provenance *
+              </label>
+              <textarea
+                rows={3}
+                required
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Purchased 4 months ago for study sessions. Includes carrying case, USB-C braid cable, 3.5mm jack..."
+                className="w-full px-4 py-2.5 rounded-xl bg-surface-container-low text-on-surface text-xs focus:bg-surface-container-lowest focus:border-primary focus:outline-none transition-all resize-none"
+              />
+            </div>
+          </div>
+
+          {/* Section 2: Barter Protocol & Valuation */}
+          <div className="bg-surface-container-lowest p-5 sm:p-6 rounded-2xl border border-outline-variant/20 shadow-sm space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-outline-variant/10">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-secondary-fixed text-secondary flex items-center justify-center">
+                  <Repeat className="w-4 h-4" />
+                </div>
+                <h2 className="text-base font-bold text-on-surface">2. Barter Protocol & Valuation</h2>
+              </div>
+              <span className="text-[11px] font-bold text-tertiary-container bg-tertiary-fixed px-2.5 py-0.5 rounded-full">
+                Circular Core
+              </span>
+            </div>
+
+            {/* Trade Mode Selector Pill Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <button
+                type="button"
+                onClick={() => setExchangeType('BARTER_ONLY')}
+                className={`p-3.5 rounded-xl text-left transition-all ${
+                  exchangeType === 'BARTER_ONLY'
+                    ? 'bg-secondary text-on-secondary shadow-md'
+                    : 'bg-surface-container-low hover:bg-surface-container text-on-surface'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <Repeat className="w-4 h-4" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider">Zero Cash</span>
+                </div>
+                <span className="block text-xs font-bold">True Barter</span>
+                <span className="block text-[11px] opacity-80 mt-0.5">100% Item-for-item</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setExchangeType('HYBRID')}
+                className={`p-3.5 rounded-xl text-left transition-all ${
+                  exchangeType === 'HYBRID'
+                    ? 'bg-primary text-on-primary shadow-md'
+                    : 'bg-surface-container-low hover:bg-surface-container text-on-surface'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <DollarSign className="w-4 h-4 text-tertiary" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider">Most Popular</span>
+                </div>
+                <span className="block text-xs font-bold">Hybrid Swap</span>
+                <span className="block text-[11px] opacity-80 mt-0.5">Item + Cash balance</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setExchangeType('CASH_ONLY')}
+                className={`p-3.5 rounded-xl text-left transition-all ${
+                  exchangeType === 'CASH_ONLY'
+                    ? 'bg-surface-container-highest text-on-surface shadow-md ring-1 ring-outline'
+                    : 'bg-surface-container-low hover:bg-surface-container text-on-surface'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <DollarSign className="w-4 h-4 text-outline" />
+                </div>
+                <span className="block text-xs font-bold">Cash Direct</span>
+                <span className="block text-[11px] text-on-surface-variant mt-0.5">Traditional buyout</span>
+              </button>
+            </div>
+
+            {/* Estimated Item Market Valuation */}
+            {exchangeType !== 'BARTER_ONLY' && (
+              <div className="bg-surface-container-low p-4 rounded-xl space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="block text-xs font-bold text-on-surface">Estimated Market Valuation</span>
+                    <span className="text-[11px] text-on-surface-variant">Used to recommend fair trade algorithmic counterparts</span>
+                  </div>
+                  <div className="flex items-center gap-1 bg-surface-container-lowest px-3 py-1 rounded-full shadow-sm">
+                    <span className="text-tertiary font-bold text-sm">$</span>
+                    <input
+                      type="number"
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                      className="w-16 bg-transparent font-bold text-sm text-on-surface focus:outline-none text-right"
+                    />
+                  </div>
+                </div>
+
+                {/* Histogram Visual */}
+                <div className="pt-1">
+                  <div className="flex items-center justify-between text-[11px] text-on-surface-variant mb-1">
+                    <span>Algorithmic Median: <strong className="text-on-surface">$260 – $295</strong></span>
+                    <span className="text-primary font-semibold">Healthy Valuation Range</span>
+                  </div>
+                  <div className="h-8 w-full flex items-end gap-1.5 py-1">
+                    <div className="flex-1 bg-primary/20 rounded-t h-2"></div>
+                    <div className="flex-1 bg-primary/30 rounded-t h-4"></div>
+                    <div className="flex-1 bg-primary/45 rounded-t h-6"></div>
+                    <div className="flex-1 bg-primary rounded-t h-8 relative">
+                      <span className="absolute -top-3 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-primary ring-2 ring-surface-container-lowest"></span>
+                    </div>
+                    <div className="flex-1 bg-primary/60 rounded-t h-5"></div>
+                    <div className="flex-1 bg-primary/35 rounded-t h-3"></div>
+                    <div className="flex-1 bg-primary/20 rounded-t h-1.5"></div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Wishlist Tags (Item for Item) */}
+            {exchangeType !== 'CASH_ONLY' && (
+              <div className="space-y-2 pt-1">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-semibold text-on-surface">
+                    What items would you trade this for? (Wishlist)
+                  </label>
+                  <span className="text-[11px] text-outline">Targeting ~${price || '200'} valuation</span>
+                </div>
+
+                <div className="p-3 bg-surface-container-low rounded-xl flex flex-wrap gap-2 items-center min-h-[48px]">
+                  {wishlistTags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary text-on-primary text-xs font-medium shadow-sm"
+                    >
+                      {tag}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveTag(tag)}
+                        className="hover:opacity-75 focus:outline-none"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
+                  <div className="flex items-center gap-1 bg-surface-container-lowest rounded-full px-3 py-1 shadow-sm">
+                    <Plus className="w-3.5 h-3.5 text-outline" />
+                    <input
+                      type="text"
+                      value={tagInput}
+                      onChange={(e) => setTagInput(e.target.value)}
+                      onKeyDown={handleAddTag}
+                      placeholder="Type target item & hit Enter..."
+                      className="bg-transparent text-on-surface text-xs placeholder:text-outline focus:outline-none w-44"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1.5 flex-wrap pt-1">
+                  <span className="text-[11px] text-on-surface-variant font-medium">Popular counter-offers:</span>
+                  {['Fujifilm FinePix', 'Steam Deck 64GB', 'Mechanical 75% Keyboard', 'Analog 35mm SLR'].map((rec) => (
+                    <button
+                      key={rec}
+                      type="button"
+                      onClick={() => handleQuickAddTag(rec)}
+                      className="px-2.5 py-0.5 rounded-full bg-surface-container text-[11px] text-on-surface hover:bg-surface-container-high transition-colors"
+                    >
+                      + {rec}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Cash Offset Buffer Callout */}
+            <div className="p-3.5 rounded-xl bg-surface-container-low flex items-center justify-between">
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">City</label>
+                <span className="block text-xs font-bold text-on-surface">Cash Flexibility Buffer (OBO)</span>
+                <span className="text-[11px] text-on-surface-variant">Open to cash difference adjustments in trade proposals</span>
+              </div>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={isNegotiable}
+                  onChange={(e) => setIsNegotiable(e.target.checked)}
+                  className="rounded text-primary focus:ring-primary w-4 h-4 accent-primary"
+                />
+                <span className="text-xs font-semibold text-primary">Allow Cash Offset</span>
+              </label>
+            </div>
+          </div>
+
+          {/* Section 3: Safe Spots & Handover */}
+          <div className="bg-surface-container-lowest p-5 sm:p-6 rounded-2xl border border-outline-variant/20 shadow-sm space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-outline-variant/10">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-tertiary-fixed text-tertiary flex items-center justify-center">
+                  <ShieldCheck className="w-4 h-4" />
+                </div>
+                <h2 className="text-base font-bold text-on-surface">3. Handover & Safe Spots</h2>
+              </div>
+              <span className="text-[11px] font-semibold text-primary flex items-center gap-1">
+                <MapPin className="w-3.5 h-3.5" /> Safe Meetup Verified
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              {[
+                { name: 'Campus Safe Spot', desc: 'Columbia Student Center', icon: 'campus' },
+                { name: 'Transit Hub Locker', desc: 'Grand Central Smart Bay', icon: 'locker' },
+                { name: 'Public Library', desc: 'NYPL Schwartzman Wing', icon: 'library' }
+              ].map((spot) => (
+                <button
+                  key={spot.name}
+                  type="button"
+                  onClick={() => setHandoverSpot(spot.name)}
+                  className={`p-3.5 rounded-xl text-left border transition-all ${
+                    handoverSpot === spot.name
+                      ? 'border-primary bg-primary-fixed/20 shadow-sm'
+                      : 'border-outline-variant/20 bg-surface-container-low hover:bg-surface-container'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1.5">
+                    <MapPin className={`w-4 h-4 ${handoverSpot === spot.name ? 'text-primary' : 'text-outline'}`} />
+                    <span className={`w-3.5 h-3.5 rounded-full border ${handoverSpot === spot.name ? 'bg-primary border-primary' : 'border-outline'}`}></span>
+                  </div>
+                  <span className="block text-xs font-bold text-on-surface">{spot.name}</span>
+                  <span className="block text-[11px] text-on-surface-variant mt-0.5">{spot.desc}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* City & State */}
+            <div className="grid grid-cols-2 gap-4 pt-1">
+              <div>
+                <label className="block text-xs font-semibold text-on-surface mb-1">Meetup City</label>
                 <input
                   type="text"
                   required
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-white border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-indigo-500"
+                  className="w-full px-3.5 py-2 rounded-xl bg-surface-container-low text-on-surface text-xs focus:outline-none focus:border-primary"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">State</label>
+                <label className="block text-xs font-semibold text-on-surface mb-1">State</label>
                 <input
                   type="text"
                   required
                   value={state}
                   onChange={(e) => setState(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-white border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-indigo-500"
+                  className="w-full px-3.5 py-2 rounded-xl bg-surface-container-low text-on-surface text-xs focus:outline-none focus:border-primary"
                 />
               </div>
             </div>
 
-            <div className="flex items-center gap-6 pt-2">
-              <label className="flex items-center gap-2 text-xs font-semibold text-gray-700 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={pickupAvailable}
-                  onChange={(e) => setPickupAvailable(e.target.checked)}
-                  className="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4"
-                />
-                <span>Safe Public Meetup / Local Pickup</span>
-              </label>
-
-              <label className="flex items-center gap-2 text-xs font-semibold text-gray-700 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={shippingAvailable}
-                  onChange={(e) => setShippingAvailable(e.target.checked)}
-                  className="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4"
-                />
-                <span>Willing to Ship / Mail Item</span>
-              </label>
+            {/* 6-Digit Handshake Guarantee Banner */}
+            <div className="p-4 rounded-xl bg-gradient-to-r from-primary-fixed/60 to-surface-container-low flex items-start gap-3 border border-primary/20">
+              <div className="w-9 h-9 rounded-xl bg-primary text-on-primary flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-xs font-bold text-on-primary-fixed">6-Digit Code Exchange Guarantee</h3>
+                  <span className="bg-tertiary-fixed text-on-tertiary-fixed text-[10px] font-bold px-2 py-0.5 rounded-full">
+                    Included
+                  </span>
+                </div>
+                <p className="text-[11px] text-on-surface-variant mt-1 leading-relaxed">
+                  Neither trader leaves the meetup until both parties enter their synced 6-digit handshake codes on their phones. Swaps are verified and ratings unlocked only when both confirm physical receipt.
+                </p>
+              </div>
             </div>
           </div>
 
-          {/* Step 5: Images */}
-          <div className="pt-6 border-t border-gray-100 space-y-3">
-            <label className="block text-xs font-bold text-gray-900 uppercase tracking-wider">
-              5. Photo URLs
-            </label>
+          {/* Section 4: Photo URLs */}
+          <div className="bg-surface-container-lowest p-5 sm:p-6 rounded-2xl border border-outline-variant/20 shadow-sm space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-outline-variant/10">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-surface-container-high text-on-surface-variant flex items-center justify-center">
+                  <Plus className="w-4 h-4" />
+                </div>
+                <h2 className="text-base font-bold text-on-surface">4. Photos & Proof</h2>
+              </div>
+              <span className="text-[11px] text-outline">Verified Photos Boost Swap Rate</span>
+            </div>
+
             <div className="flex gap-2">
               <input
                 type="url"
                 value={imageUrl}
                 onChange={(e) => setImageUrl(e.target.value)}
-                placeholder="Paste an image URL (e.g. https://...)"
-                className="flex-1 px-3.5 py-2 bg-white border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-indigo-500"
+                placeholder="Paste an image URL (e.g. https://images.unsplash.com/...)"
+                className="flex-1 px-3.5 py-2.5 bg-surface-container-low border border-outline-variant/30 rounded-xl text-xs focus:outline-none focus:border-primary"
               />
               <button
                 type="button"
                 onClick={handleAddImage}
-                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-bold rounded-xl flex items-center gap-1.5 transition-colors"
+                className="px-4 py-2.5 bg-primary text-on-primary text-xs font-bold rounded-xl hover:bg-primary-container transition-colors flex items-center gap-1.5"
               >
-                <Plus className="w-3.5 h-3.5" /> Add Photo
+                <Plus className="w-4 h-4" /> Add Photo
               </button>
             </div>
 
             {images.length > 0 && (
               <div className="flex gap-3 overflow-x-auto pt-2">
                 {images.map((img, idx) => (
-                  <div key={idx} className="relative w-20 h-20 rounded-xl overflow-hidden border border-gray-200 flex-shrink-0 group">
+                  <div key={idx} className="relative w-20 h-20 rounded-xl overflow-hidden border border-outline-variant/30 flex-shrink-0 group">
                     <img src={img} alt="Uploaded" className="w-full h-full object-cover" />
                     <button
                       type="button"
                       onClick={() => handleRemoveImage(idx)}
-                      className="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute top-1 right-1 p-1 bg-error text-white rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
                     >
                       <Trash2 className="w-3 h-3" />
                     </button>
@@ -578,26 +868,155 @@ export default function NewListingPage() {
             )}
           </div>
 
-          {/* Form Actions */}
-          <div className="pt-6 border-t border-gray-100 flex items-center justify-end gap-3">
+          {/* Form Actions Footer */}
+          <div className="bg-surface-container-lowest p-4 sm:p-5 rounded-2xl border border-outline-variant/20 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
             <Link
               href="/listings"
-              className="px-5 py-2.5 text-xs font-bold text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
+              className="w-full sm:w-auto px-5 py-2.5 text-xs font-bold text-on-surface-variant hover:bg-surface-container rounded-full text-center transition-colors"
             >
-              Cancel
+              Cancel & Discard
             </Link>
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-xs font-bold rounded-xl shadow-lg shadow-indigo-600/20 disabled:opacity-50 transition-all hover:scale-105"
+              className="w-full sm:w-auto px-8 py-3 bg-primary hover:bg-primary-container active:scale-95 text-on-primary text-xs font-bold rounded-full shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
             >
-              {loading ? 'Publishing Listing...' : 'Publish Listing'}
+              <span>{loading ? 'Publishing Listing...' : 'Publish Listing & Unlock Barter Matching'}</span>
+              <ArrowRight className="w-4 h-4" />
             </button>
           </div>
 
-        </form>
+        </div>
 
-      </div>
+        {/* Right Column: Live Sticky Marketplace Preview (5 cols) */}
+        <div className="lg:col-span-5 lg:sticky lg:top-24 space-y-4">
+          <div className="flex items-center justify-between px-1">
+            <span className="text-[11px] uppercase tracking-wider text-outline font-bold flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+              Live Marketplace Preview
+            </span>
+            <span className="text-xs text-on-surface-variant">Feed card render</span>
+          </div>
+
+          {/* Floating Card Mockup */}
+          <div className="bg-surface-container-lowest rounded-3xl p-4 sm:p-5 border border-outline-variant/20 shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+            {/* Image Container with Badges */}
+            <div className="relative w-full h-64 rounded-2xl overflow-hidden bg-surface-container-low">
+              <img
+                src={images[0] || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80'}
+                alt={title}
+                className="w-full h-full object-cover"
+              />
+              <button
+                type="button"
+                className="absolute top-3 right-3 w-9 h-9 rounded-full bg-surface-container-lowest/90 backdrop-blur-sm flex items-center justify-center text-primary shadow-sm hover:scale-110 transition-transform"
+              >
+                <Heart className="w-4 h-4" />
+              </button>
+
+              {/* Valuation Badge */}
+              <div className="absolute top-3 left-3 flex items-center gap-1 bg-surface-container-lowest/90 backdrop-blur-sm px-3 py-1 rounded-full shadow-sm">
+                <span className="text-[11px] text-outline font-medium">Valuation</span>
+                <span className="text-sm text-tertiary font-bold">
+                  {exchangeType === 'BARTER_ONLY' ? 'Pure Barter' : `$${price || '0'}`}
+                </span>
+              </div>
+
+              {/* Bottom Condition & Category */}
+              <div className="absolute bottom-3 left-3 flex items-center gap-1.5">
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed text-[11px] font-bold shadow-md">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  {conditionLabels[condition]?.label || 'Good'}
+                </span>
+                <span className="inline-flex items-center px-3 py-1 rounded-full bg-surface-container-lowest/90 backdrop-blur-sm text-on-surface text-[11px] font-semibold">
+                  {listingType === 'PRODUCT' ? category : 'Textbook'}
+                </span>
+              </div>
+            </div>
+
+            {/* Card Content Body */}
+            <div className="pt-4 space-y-2">
+              <div className="flex items-center justify-between text-xs text-on-surface-variant">
+                <span className="font-semibold text-primary">
+                  {listingType === 'PRODUCT' ? `${brand || 'Brand'} • ${model || 'Model'}` : `${author || 'Author'}`}
+                </span>
+                <span className="flex items-center gap-1 text-on-surface-variant font-medium">
+                  <Star className="w-3.5 h-3.5 text-tertiary fill-tertiary" />
+                  4.9 (24 swaps)
+                </span>
+              </div>
+
+              <h3 className="text-base font-bold text-on-surface line-clamp-2">
+                {title || 'Untitled Listing'}
+              </h3>
+
+              {/* Wishlist Preview */}
+              <div className="space-y-1 pt-1">
+                <span className="block text-[11px] text-outline uppercase tracking-wider font-semibold">
+                  Owner Wants In Return:
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {wishlistTags.slice(0, 3).map((w, idx) => (
+                    <span key={idx} className="px-2.5 py-0.5 rounded-full bg-surface-container text-on-surface text-[11px]">
+                      {w}
+                    </span>
+                  ))}
+                  {wishlistTags.length === 0 && (
+                    <span className="text-[11px] text-outline italic">Open to all offers</span>
+                  )}
+                </div>
+              </div>
+
+              {/* Handover & Offset callout */}
+              <div className="pt-2 flex items-center justify-between text-xs text-on-surface-variant border-t border-outline-variant/15">
+                <div className="flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5 text-primary" />
+                  <span className="truncate max-w-[140px]">{handoverSpot}</span>
+                </div>
+                <span className="text-tertiary font-semibold">
+                  {isNegotiable ? '±$50 cash offset' : 'Fixed Valuation'}
+                </span>
+              </div>
+
+              {/* Simulated Proposer Button */}
+              <div className="pt-3">
+                <button
+                  type="button"
+                  className="w-full py-2.5 px-4 rounded-full bg-primary/10 hover:bg-primary hover:text-on-primary text-primary font-semibold text-xs flex items-center justify-center gap-2 transition-all"
+                >
+                  <Repeat className="w-4 h-4" />
+                  <span>Offer Barter Match</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Trust Metric Card */}
+          <div className="bg-surface-container-lowest p-4 rounded-2xl border border-outline-variant/20 shadow-sm space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-center font-bold">
+                <ShieldCheck className="w-5 h-5 text-tertiary" />
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-on-surface">BarterHub Exchange Integrity</h4>
+                <p className="text-[11px] text-on-surface-variant">Listing passes 100% of community safety checks.</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2 pt-1">
+              <div className="p-2.5 rounded-xl bg-surface-container-low text-center">
+                <span className="block text-base font-bold text-primary">99.4%</span>
+                <span className="block text-[10px] text-outline uppercase font-semibold">Meetup Success Rate</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-surface-container-low text-center">
+                <span className="block text-base font-bold text-tertiary">&lt; 3 hrs</span>
+                <span className="block text-[10px] text-outline uppercase font-semibold">Avg Counter-Offer</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </form>
     </div>
   );
 }

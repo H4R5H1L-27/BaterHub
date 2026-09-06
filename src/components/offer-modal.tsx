@@ -65,23 +65,23 @@ export default function OfferModal({ listing, isOpen, onClose, onOfferSubmitted 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-on-surface/50 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="relative w-full max-w-lg bg-surface-container-lowest rounded-3xl shadow-modal border border-outline-variant/30 overflow-hidden">
         
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/70">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-outline-variant/30 bg-surface-container-low">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-secondary-fixed text-secondary flex items-center justify-center font-bold">
               <DollarSign className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-gray-900 text-base">Make a Cash Offer</h3>
-              <p className="text-xs text-gray-700">Submit a direct purchase offer to {listing.user.name}</p>
+              <h3 className="font-extrabold text-on-surface text-base">Make Cash Offer</h3>
+              <p className="text-xs text-on-surface-variant">Submit a cash buyout offer to {listing.user.name}</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
+            className="p-1.5 text-outline hover:text-on-surface rounded-full hover:bg-surface-container transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -90,35 +90,35 @@ export default function OfferModal({ listing, isOpen, onClose, onOfferSubmitted 
         {/* Form Body */}
         {success ? (
           <div className="p-8 text-center space-y-3">
-            <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
-              <CheckCircle2 className="w-6 h-6" />
+            <div className="w-14 h-14 rounded-full bg-secondary-fixed text-secondary flex items-center justify-center mx-auto shadow-sm">
+              <CheckCircle2 className="w-7 h-7" />
             </div>
-            <h4 className="font-bold text-gray-900 text-lg">Offer Submitted!</h4>
-            <p className="text-sm text-gray-600">
-              Your offer of <strong className="text-gray-900">{formatPrice(parseFloat(offerAmount))}</strong> has been sent to the seller. You can track it in your Offers hub and chat directly!
+            <h4 className="font-extrabold text-on-surface text-xl">Offer Submitted!</h4>
+            <p className="text-xs text-on-surface-variant max-w-sm mx-auto leading-relaxed">
+              Your offer of <strong className="text-on-surface">{formatPrice(parseFloat(offerAmount))}</strong> has been delivered. You can track responses in your Offers Hub and chat directly.
             </p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="p-6 space-y-5">
             {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm flex items-start gap-2">
-                <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+              <div className="p-3 bg-clay/10 border border-clay/20 rounded-2xl text-clay text-xs flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
                 <span>{error}</span>
               </div>
             )}
 
             {/* Target Item summary */}
-            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+            <div className="flex items-center gap-3 p-3.5 bg-surface-container-low rounded-2xl border border-outline-variant/30">
               <img
                 src={listing.images[0] || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=200'}
                 alt={listing.title}
-                className="w-14 h-14 rounded-lg object-cover flex-shrink-0"
+                className="w-14 h-14 rounded-xl object-cover shrink-0"
               />
               <div className="flex-1 min-w-0">
-                <h5 className="font-semibold text-gray-900 text-sm truncate">{listing.title}</h5>
-                <p className="text-xs text-gray-700">
-                  Listed Asking Price:{' '}
-                  <strong className="text-gray-900 font-bold">
+                <h5 className="font-bold text-on-surface text-sm truncate">{listing.title}</h5>
+                <p className="text-xs text-on-surface-variant mt-0.5">
+                  Asking Price:{' '}
+                  <strong className="text-on-surface font-extrabold">
                     {formatPrice(listing.price, listing.currency)}
                   </strong>
                 </p>
@@ -126,12 +126,12 @@ export default function OfferModal({ listing, isOpen, onClose, onOfferSubmitted 
             </div>
 
             {/* Offer Amount Input */}
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-outline uppercase tracking-wider">
                 Your Offer Amount ($ USD)
               </label>
               <div className="relative">
-                <span className="absolute left-3.5 top-3 text-gray-400 font-semibold text-base">$</span>
+                <span className="absolute left-3.5 top-2.5 text-outline font-semibold text-base">$</span>
                 <input
                   type="number"
                   step="0.5"
@@ -140,44 +140,44 @@ export default function OfferModal({ listing, isOpen, onClose, onOfferSubmitted 
                   value={offerAmount}
                   onChange={(e) => setOfferAmount(e.target.value)}
                   placeholder="Enter cash amount"
-                  className="w-full pl-8 pr-4 py-2.5 bg-white border border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-xl text-base font-semibold text-gray-900 focus:outline-none transition-all"
+                  className="w-full pl-8 pr-4 py-2.5 bg-surface-container-low border border-outline-variant/40 rounded-full text-sm font-bold text-on-surface focus:outline-none focus:border-secondary transition-all"
                 />
               </div>
-              <p className="text-xs text-gray-700 mt-1">
-                The seller can accept, decline, or send you a counter-offer.
+              <p className="text-[10px] text-outline">
+                The seller can accept, decline, or send you a counter-offer in chat.
               </p>
             </div>
 
             {/* Optional Note */}
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
-                Message to Seller (Optional)
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-outline uppercase tracking-wider">
+                Message to Trader (Optional)
               </label>
               <textarea
                 rows={3}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                placeholder="e.g. Can meet in downtown tomorrow, or pay cash on pickup..."
-                className="w-full px-3.5 py-2.5 bg-white border border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-xl text-sm text-gray-900 focus:outline-none resize-none transition-all placeholder:text-gray-400"
+                placeholder="e.g. Can meet in campus student center tomorrow at 2 PM..."
+                className="w-full px-3.5 py-2.5 bg-surface-container-low border border-outline-variant/40 rounded-2xl text-xs text-on-surface focus:outline-none focus:border-secondary resize-none transition-all"
               />
             </div>
 
             {/* Modal Actions */}
-            <div className="flex items-center justify-end gap-3 pt-2">
+            <div className="flex items-center justify-end gap-2.5 pt-2">
               <button
                 type="button"
                 onClick={onClose}
                 disabled={loading}
-                className="px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-100 rounded-xl transition-colors"
+                className="px-4 py-2 rounded-full text-xs font-semibold text-outline hover:text-on-surface hover:bg-surface-container transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-50 rounded-xl shadow-sm transition-all"
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-bold text-white bg-secondary hover:bg-secondary-container active:scale-95 disabled:opacity-50 shadow-lift transition-all"
               >
-                <Send className="w-4 h-4" />
+                <Send className="w-3.5 h-3.5" />
                 <span>{loading ? 'Sending...' : 'Send Cash Offer'}</span>
               </button>
             </div>

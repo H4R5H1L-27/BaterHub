@@ -3,12 +3,12 @@
 @tailwind utilities;
 
 :root {
-  --background: #F4EFE6;
-  --foreground: #1C1917;
+  --background: #faf8ff;
+  --foreground: #131b2e;
 }
 
 html {
-  scroll-behavior: auto;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -17,13 +17,13 @@ body {
 }
 
 ::selection {
-  background: #3F6B54;
-  color: #FFFBF4;
+  background: #4648d4;
+  color: #ffffff;
 }
 
 :focus-visible {
-  outline: 2px solid #3F6B54;
-  outline-offset: 3px;
+  outline: 2px solid #4648d4;
+  outline-offset: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {

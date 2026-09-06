@@ -190,13 +190,15 @@ function MessagesContent() {
           <div className="flex-1 overflow-y-auto divide-y divide-gray-100">
             {loading ? (
               <div className="p-4 space-y-3">
-                {[1, 2, 3].map((n) => (
-                  <div key={n} className="h-16 bg-gray-200/60 rounded-xl animate-pulse" />
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="h-16 bg-surface-container-low rounded-2xl animate-pulse" />
                 ))}
               </div>
             ) : conversations.length === 0 ? (
-              <div className="p-8 text-center text-xs text-gray-700">
-                No conversations yet. When you make an offer or propose a barter, your chat thread will start here.
+              <div className="p-8 text-center text-outline">
+                <MessageSquare className="w-10 h-10 mx-auto mb-2 text-outline/50" />
+                <p className="text-xs font-bold text-on-surface">No negotiations started yet</p>
+                <p className="text-[11px] text-outline mt-1">Browse catalog items and propose a barter to start chatting.</p>
               </div>
             ) : (
               conversations.map((conv) => {
@@ -208,40 +210,40 @@ function MessagesContent() {
                   <div
                     key={conv.id}
                     onClick={() => setSelectedConversation(conv)}
-                    className={`p-4 cursor-pointer transition-all flex items-start gap-3 ${
+                    className={`p-3.5 cursor-pointer transition-all flex items-start gap-3 ${
                       isSelected
-                        ? 'bg-white border-l-4 border-indigo-600 shadow-sm'
-                        : 'hover:bg-white/80'
+                        ? 'bg-primary-fixed/25 border-l-4 border-primary'
+                        : 'hover:bg-surface-container-low'
                     }`}
                   >
-                    <div className="relative">
+                    <div className="relative shrink-0">
                       <img
                         src={partner.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
                         alt={partner.name}
-                        className="w-11 h-11 rounded-2xl object-cover border border-gray-200 flex-shrink-0"
+                        className="w-11 h-11 rounded-2xl object-cover border border-outline-variant/30"
                       />
                       {partner.isVerified && (
-                        <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 shadow-sm">
-                          <ShieldCheck className="w-3.5 h-3.5 text-indigo-600" />
+                        <div className="absolute -bottom-1 -right-1 bg-surface-container-lowest rounded-full p-0.5 shadow-sm">
+                          <ShieldCheck className="w-3.5 h-3.5 text-primary" />
                         </div>
                       )}
                     </div>
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
-                        <h4 className="text-xs font-bold text-gray-900 truncate">{partner.name}</h4>
-                        <span className="text-[10px] text-gray-700">
+                        <h4 className="text-xs font-bold text-on-surface truncate">{partner.name}</h4>
+                        <span className="text-[10px] text-outline">
                           {formatRelativeTime(conv.lastMessageAt)}
                         </span>
                       </div>
 
                       {conv.listing && (
-                        <p className="text-[11px] font-semibold text-indigo-600 truncate mt-0.5">
+                        <p className="text-[11px] font-semibold text-primary truncate mt-0.5">
                           📌 {conv.listing.title}
                         </p>
                       )}
 
-                      <p className="text-xs text-gray-500 truncate mt-1">
+                      <p className="text-xs text-outline truncate mt-1">
                         {latestMsg?.content || 'Start negotiating...'}
                       </p>
                     </div>
@@ -254,29 +256,36 @@ function MessagesContent() {
 
         {/* Right Area: Active Chat Window */}
         {selectedConversation ? (
-          <div className="flex-1 flex flex-col h-full bg-white">
+          <div className="flex-1 flex flex-col h-full bg-surface-container-lowest">
             
             {/* Chat Top Header */}
             {(() => {
               const partner = getOtherParticipant(selectedConversation);
               return (
-                <div className="p-4 border-b border-gray-200 bg-white flex items-center justify-between flex-shrink-0">
+                <div className="p-4 border-b border-outline-variant/30 bg-surface-container-lowest flex items-center justify-between shrink-0">
                   <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => setSelectedConversation(null)}
+                      className="md:hidden p-1 rounded-full hover:bg-surface-container text-on-surface"
+                      aria-label="Back to conversations"
+                    >
+                      <ArrowLeft className="w-5 h-5" />
+                    </button>
                     <img
                       src={partner.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
                       alt={partner.name}
-                      className="w-10 h-10 rounded-2xl object-cover border border-gray-200"
+                      className="w-10 h-10 rounded-2xl object-cover border border-outline-variant/30"
                     />
                     <div>
                       <div className="flex items-center gap-1.5">
-                        <Link href={`/profile/${partner.id}`} className="font-bold text-sm text-gray-900 hover:text-indigo-600">
+                        <Link href={`/profile/${partner.id}`} className="font-bold text-sm text-on-surface hover:text-primary transition-colors">
                           {partner.name}
                         </Link>
-                        {partner.isVerified && <ShieldCheck className="w-4 h-4 text-indigo-600" />}
-                        <span className="text-xs text-amber-500 font-semibold">★ {partner.reputationScore.toFixed(1)}</span>
+                        {partner.isVerified && <ShieldCheck className="w-4 h-4 text-primary" />}
+                        <span className="text-xs text-tertiary font-bold">★ {partner.reputationScore.toFixed(1)}</span>
                       </div>
-                      <p className="text-xs text-gray-700">
-                        {partner.city}, {partner.state} • {partner.avgResponseTime || 'Replies quickly'}
+                      <p className="text-[11px] text-outline">
+                        {partner.city}, {partner.state} • {partner.avgResponseTime || 'Replies promptly'}
                       </p>
                     </div>
                   </div>
@@ -284,10 +293,10 @@ function MessagesContent() {
                   {selectedConversation.listing && (
                     <Link
                       href={`/listings/${selectedConversation.listing.id}`}
-                      className="hidden sm:flex items-center gap-2 p-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs font-semibold text-gray-700 transition-colors"
+                      className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container-low hover:bg-surface-container border border-outline-variant/30 text-xs font-semibold text-on-surface transition-colors"
                     >
-                      <span className="truncate max-w-[150px]">{selectedConversation.listing.title}</span>
-                      <ExternalLink className="w-3.5 h-3.5 text-gray-400" />
+                      <span className="truncate max-w-[140px]">{selectedConversation.listing.title}</span>
+                      <ExternalLink className="w-3.5 h-3.5 text-outline" />
                     </Link>
                   )}
                 </div>
@@ -295,18 +304,18 @@ function MessagesContent() {
             })()}
 
             {/* Meetup Safety Banner */}
-            <div className="px-4 py-2 bg-amber-50 border-b border-amber-100 text-[11px] text-amber-900 flex items-center justify-between">
+            <div className="px-4 py-2 bg-tertiary-fixed/30 border-b border-tertiary/20 text-[11px] text-on-tertiary-fixed flex items-center justify-between">
               <span className="flex items-center gap-1.5 font-medium">
-                <AlertTriangle className="w-3.5 h-3.5 text-amber-600 flex-shrink-0" />
-                Never share bank PINs or payment passwords. Meet in public locations.
+                <AlertTriangle className="w-3.5 h-3.5 text-tertiary flex-shrink-0" />
+                Never send prepaid wire transfers. Always use in-person meetup verification codes.
               </span>
-              <Link href="/offers" className="font-bold text-amber-900 underline">
-                View All Offers
+              <Link href="/offers" className="font-bold text-primary underline">
+                Offers Hub
               </Link>
             </div>
 
-            {/* Messages Scroll Area - internally scrollable only */}
-            <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-slate-50/40">
+            {/* Messages Scroll Area */}
+            <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-surface/50">
               {messages.map((msg) => {
                 const isMe = currentUser ? msg.senderId === currentUser.id : msg.sender.name === 'Alex Turner';
                 let metadataObj: any = null;
@@ -322,7 +331,7 @@ function MessagesContent() {
                     className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}
                   >
                     {/* Timestamp & Name */}
-                    <div className="flex items-center gap-1.5 mb-1 px-1 text-[10px] text-gray-700 font-medium">
+                    <div className="flex items-center gap-1.5 mb-1 px-1 text-[10px] text-outline font-medium">
                       <span>{msg.sender.name}</span>
                       <span>•</span>
                       <span>{formatRelativeTime(msg.createdAt)}</span>
@@ -330,46 +339,46 @@ function MessagesContent() {
 
                     {/* Standard Text or Action Cards */}
                     {msg.messageType === 'CASH_OFFER_CARD' ? (
-                      <div className="w-full max-w-sm p-4 rounded-2xl bg-emerald-50 border border-emerald-200 shadow-sm space-y-2.5">
+                      <div className="w-full max-w-sm p-4 rounded-2xl bg-surface-container-lowest border border-outline-variant/40 shadow-sm space-y-2.5">
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-1.5 text-emerald-900 font-bold text-xs">
+                          <div className="flex items-center gap-1.5 text-on-surface font-bold text-xs">
                             <DollarSign className="w-4 h-4 text-emerald-600" />
-                            <span>Cash Offer Negotiation</span>
+                            <span>Cash Buyout Offer</span>
                           </div>
-                          <span className="px-2 py-0.5 rounded-full bg-emerald-600 text-white text-[10px] font-black uppercase">
+                          <span className="px-2 py-0.5 rounded-full bg-emerald-600 text-white text-[10px] font-bold uppercase">
                             {metadataObj?.status || 'OFFER'}
                           </span>
                         </div>
-                        <p className="text-xl font-black text-gray-900">
+                        <p className="text-xl font-extrabold text-on-surface">
                           {formatPrice(metadataObj?.amount)}
                         </p>
                         {metadataObj?.counterAmount && (
-                          <p className="text-xs font-bold text-amber-700">
+                          <p className="text-xs font-bold text-tertiary">
                             Countered at: {formatPrice(metadataObj.counterAmount)}
                           </p>
                         )}
-                        <p className="text-xs text-gray-600">{msg.content}</p>
-                        <div className="pt-2 border-t border-emerald-100 flex items-center justify-between">
-                          <Link href="/offers" className="text-xs font-bold text-emerald-700 hover:underline">
+                        <p className="text-xs text-outline">{msg.content}</p>
+                        <div className="pt-2 border-t border-outline-variant/30 flex items-center justify-between">
+                          <Link href="/offers" className="text-xs font-bold text-primary hover:underline">
                             Respond in Offers Hub →
                           </Link>
                         </div>
                       </div>
                     ) : msg.messageType === 'BARTER_PROPOSAL_CARD' ? (
-                      <div className="w-full max-w-sm p-4 rounded-2xl bg-purple-50 border border-purple-200 shadow-sm space-y-2.5">
+                      <div className="w-full max-w-sm p-4 rounded-2xl bg-surface-container-lowest border border-outline-variant/40 shadow-sm space-y-2.5">
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-1.5 text-purple-900 font-bold text-xs">
-                            <Repeat className="w-4 h-4 text-purple-600" />
+                          <div className="flex items-center gap-1.5 text-on-surface font-bold text-xs">
+                            <Repeat className="w-4 h-4 text-primary" />
                             <span>Barter Swap Proposal</span>
                           </div>
-                          <span className="px-2 py-0.5 rounded-full bg-purple-600 text-white text-[10px] font-black uppercase">
+                          <span className="px-2 py-0.5 rounded-full bg-primary text-white text-[10px] font-bold uppercase">
                             {metadataObj?.status || 'PROPOSED'}
                           </span>
                         </div>
                         {metadataObj?.offeredItemTitles && (
-                          <div className="text-xs text-gray-800">
-                            <span className="font-semibold text-purple-950">Offered Items:</span>
-                            <ul className="list-disc list-inside mt-0.5 font-medium">
+                          <div className="text-xs text-on-surface">
+                            <span className="font-bold text-primary">Offered Items:</span>
+                            <ul className="list-disc list-inside mt-0.5 font-medium text-on-surface-variant">
                               {metadataObj.offeredItemTitles.map((t: string, i: number) => (
                                 <li key={i} className="truncate">{t}</li>
                               ))}
@@ -382,13 +391,13 @@ function MessagesContent() {
                           </p>
                         )}
                         {metadataObj?.exchangeCode && (
-                          <div className="p-2 bg-purple-100 rounded-lg text-xs font-mono font-bold text-purple-900 flex justify-between">
-                            <span>Code:</span>
+                          <div className="p-2 bg-primary-fixed rounded-xl text-xs font-mono font-bold text-primary flex justify-between">
+                            <span>PIN Code:</span>
                             <span>{metadataObj.exchangeCode}</span>
                           </div>
                         )}
-                        <div className="pt-2 border-t border-purple-100 flex items-center justify-between">
-                          <Link href="/offers" className="text-xs font-bold text-purple-700 hover:underline">
+                        <div className="pt-2 border-t border-outline-variant/30 flex items-center justify-between">
+                          <Link href="/offers" className="text-xs font-bold text-primary hover:underline">
                             Manage Proposal in Offers Hub →
                           </Link>
                         </div>
@@ -397,8 +406,8 @@ function MessagesContent() {
                       <div
                         className={`max-w-md px-4 py-2.5 rounded-2xl text-xs leading-relaxed ${
                           isMe
-                            ? 'bg-indigo-600 text-white rounded-br-none shadow-sm'
-                            : 'bg-white border border-gray-200 text-gray-800 rounded-bl-none shadow-sm'
+                            ? 'bg-primary text-white rounded-tr-sm shadow-sm'
+                            : 'bg-surface-container-lowest border border-outline-variant/30 text-on-surface rounded-tl-sm shadow-sm'
                         }`}
                       >
                         {msg.content}
@@ -411,18 +420,18 @@ function MessagesContent() {
             </div>
 
             {/* Input Bar */}
-            <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-200 bg-white flex items-center gap-3">
+            <form onSubmit={handleSendMessage} className="p-3.5 border-t border-outline-variant/30 bg-surface-container-lowest flex items-center gap-2.5">
               <input
                 type="text"
                 value={newMessageText}
                 onChange={(e) => setNewMessageText(e.target.value)}
                 placeholder="Type a message or discuss meetup location..."
-                className="flex-1 px-4 py-2.5 bg-gray-100 focus:bg-white border border-transparent focus:border-indigo-500 rounded-2xl text-xs text-gray-900 focus:outline-none transition-all"
+                className="flex-1 px-4 py-2.5 bg-surface-container-low focus:bg-white border border-transparent focus:border-primary rounded-full text-xs text-on-surface focus:outline-none transition-all"
               />
               <button
                 type="submit"
                 disabled={sending || !newMessageText.trim()}
-                className="p-2.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white rounded-2xl disabled:opacity-40 transition-all shadow-md flex-shrink-0"
+                className="p-2.5 bg-primary hover:bg-primary-container text-white rounded-full disabled:opacity-40 transition-all shadow-lift shrink-0"
               >
                 <Send className="w-4 h-4" />
               </button>
@@ -430,9 +439,10 @@ function MessagesContent() {
 
           </div>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-gray-400">
-            <MessageSquare className="w-12 h-12 mb-3 text-gray-300" />
-            <p className="font-bold text-sm text-gray-700">Select a conversation to start chatting</p>
+          <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-outline">
+            <MessageSquare className="w-12 h-12 mb-3 text-outline/40" />
+            <p className="font-bold text-sm text-on-surface">Select a conversation to start chatting</p>
+            <p className="text-xs text-outline mt-1">Negotiate swap terms and coordinate safe campus meetups</p>
           </div>
         )}
 
