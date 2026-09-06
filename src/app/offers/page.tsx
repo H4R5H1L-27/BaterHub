@@ -1,0 +1,643 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { 
+  ArrowLeftRight, 
+  Repeat, 
+  DollarSign, 
+  CheckCircle2, 
+  XCircle, 
+  Clock, 
+  AlertCircle,
+  MessageSquare,
+  Sparkles,
+  ShieldCheck,
+  Star
+} from 'lucide-react';
+import { CashOfferItem, BarterProposalItem } from '@/lib/types';
+import { formatPrice, formatDate } from '@/lib/utils';
+import ReviewModal from '@/components/review-modal';
+
+export default function OffersDashboardPage() {
+  const [activeTab, setActiveTab] = useState<'RECEIVED_BARTERS' | 'SENT_BARTERS' | 'RECEIVED_OFFERS' | 'SENT_OFFERS'>('RECEIVED_BARTERS');
+  
+  const [receivedBarters, setReceivedBarters] = useState<BarterProposalItem[]>([]);
+  const [sentBarters, setSentBarters] = useState<BarterProposalItem[]>([]);
+  const [receivedOffers, setReceivedOffers] = useState<CashOfferItem[]>([]);
+  const [sentOffers, setSentOffers] = useState<CashOfferItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Counter offer modal / input state
+  const [counterInputId, setCounterInputId] = useState<string | null>(null);
+  const [counterAmount, setCounterAmount] = useState<string>('');
+
+  // Review modal state
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [reviewTarget, setReviewTarget] = useState<{
+    targetUserId: string;
+    targetUserName: string;
+    listingId?: string;
+    transactionType: 'CASH_SALE' | 'BARTER_EXCHANGE';
+  } | null>(null);
+
+  const fetchDashboardData = async () => {
+    setLoading(true);
+    try {
+      const [bartersRes, offersRes] = await Promise.all([
+        fetch('/api/barters'),
+        fetch('/api/offers'),
+      ]);
+
+      if (bartersRes.ok) {
+        const bData = await bartersRes.json();
+        setReceivedBarters(bData.receivedBarters || []);
+        setSentBarters(bData.sentBarters || []);
+      }
+
+      if (offersRes.ok) {
+        const oData = await offersRes.json();
+        setReceivedOffers(oData.receivedOffers || []);
+        setSentOffers(oData.sentOffers || []);
+      }
+    } catch (err) {
+      console.error('Error fetching offers data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const handleBarterAction = async (proposalId: string, action: 'ACCEPT' | 'REJECT' | 'COMPLETE') => {
+    try {
+      const res = await fetch(`/api/barters/${proposalId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action }),
+      });
+      if (res.ok) {
+        fetchDashboardData();
+      }
+    } catch (err) {
+      console.error('Failed to update barter:', err);
+    }
+  };
+
+  const handleOfferAction = async (offerId: string, action: 'ACCEPT' | 'COUNTER' | 'DECLINE' | 'COMPLETE', customAmount?: number) => {
+    try {
+      const res = await fetch(`/api/offers/${offerId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, counterAmount: customAmount }),
+      });
+      if (res.ok) {
+        setCounterInputId(null);
+        setCounterAmount('');
+        fetchDashboardData();
+      }
+    } catch (err) {
+      console.error('Failed to update offer:', err);
+    }
+  };
+
+  const openReviewForBarter = (proposal: BarterProposalItem) => {
+    setReviewTarget({
+      targetUserId: proposal.initiatorId,
+      targetUserName: proposal.initiator.name,
+      listingId: proposal.targetListingId,
+      transactionType: 'BARTER_EXCHANGE',
+    });
+    setReviewModalOpen(true);
+  };
+
+  const openReviewForOffer = (offer: CashOfferItem) => {
+    setReviewTarget({
+      targetUserId: offer.buyerId,
+      targetUserName: offer.buyer.name,
+      listingId: offer.listingId,
+      transactionType: 'CASH_SALE',
+    });
+    setReviewModalOpen(true);
+  };
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-black text-gray-900 tracking-tight flex items-center gap-2.5">
+          <ArrowLeftRight className="w-7 h-7 text-indigo-600" />
+          <span>Offers & Trade Negotiations</span>
+        </h1>
+        <p className="text-sm text-gray-700 mt-1">
+          Review incoming barter swaps, respond to cash offers, and verify physical exchanges.
+        </p>
+      </div>
+
+      {/* Navigation Tabs */}
+      <div className="flex flex-wrap items-center gap-2 p-1.5 bg-gray-100 rounded-2xl mb-8">
+        <button
+          onClick={() => setActiveTab('RECEIVED_BARTERS')}
+          className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+            activeTab === 'RECEIVED_BARTERS'
+              ? 'bg-white text-purple-700 shadow-sm'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          <Repeat className="w-3.5 h-3.5 text-purple-600" />
+          <span>Received Barter Proposals ({receivedBarters.length})</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('SENT_BARTERS')}
+          className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+            activeTab === 'SENT_BARTERS'
+              ? 'bg-white text-purple-700 shadow-sm'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          <Repeat className="w-3.5 h-3.5 text-purple-600" />
+          <span>Sent Barters ({sentBarters.length})</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('RECEIVED_OFFERS')}
+          className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+            activeTab === 'RECEIVED_OFFERS'
+              ? 'bg-white text-emerald-700 shadow-sm'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          <DollarSign className="w-3.5 h-3.5 text-emerald-600" />
+          <span>Received Cash Offers ({receivedOffers.length})</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('SENT_OFFERS')}
+          className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+            activeTab === 'SENT_OFFERS'
+              ? 'bg-white text-emerald-700 shadow-sm'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          <DollarSign className="w-3.5 h-3.5 text-emerald-600" />
+          <span>Sent Cash Offers ({sentOffers.length})</span>
+        </button>
+      </div>
+
+      {/* Content View */}
+      {loading ? (
+        <div className="space-y-4">
+          {[1, 2, 3].map((n) => (
+            <div key={n} className="h-32 bg-gray-100 rounded-2xl animate-pulse" />
+          ))}
+        </div>
+      ) : (
+        <div className="space-y-4">
+          
+          {/* TAB 1: RECEIVED BARTERS */}
+          {activeTab === 'RECEIVED_BARTERS' && (
+            receivedBarters.length === 0 ? (
+              <div className="p-12 text-center bg-white rounded-2xl border border-gray-200">
+                <Repeat className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+                <h3 className="font-bold text-gray-900 text-sm">No incoming barter proposals</h3>
+                <p className="text-xs text-gray-700 mt-1">When someone offers to swap items for your listings, they will appear here.</p>
+              </div>
+            ) : (
+              receivedBarters.map((proposal) => (
+                <div key={proposal.id} className="bg-white p-6 rounded-2xl border border-gray-200/80 shadow-sm space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-gray-100">
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={proposal.initiator.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
+                        alt={proposal.initiator.name}
+                        className="w-10 h-10 rounded-full object-cover border border-gray-200"
+                      />
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-bold text-sm text-gray-900">{proposal.initiator.name}</span>
+                          {proposal.initiator.isVerified && <ShieldCheck className="w-3.5 h-3.5 text-indigo-600" />}
+                          <span className="text-xs text-amber-500 font-semibold">★ {proposal.initiator.reputationScore.toFixed(1)}</span>
+                        </div>
+                        <p className="text-xs text-gray-700">Proposed {formatDate(proposal.createdAt)}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                        proposal.status === 'ACCEPTED'
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : proposal.status === 'COMPLETED'
+                          ? 'bg-blue-100 text-blue-800'
+                          : proposal.status === 'REJECTED'
+                          ? 'bg-red-100 text-red-800'
+                          : 'bg-purple-100 text-purple-800'
+                      }`}>
+                        {proposal.status}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Trade details: target vs offered */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                    <div>
+                      <span className="text-[11px] font-bold text-gray-700 uppercase tracking-wider block mb-1.5">
+                        Your Item (Target)
+                      </span>
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={proposal.targetListing.images[0] || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=100'}
+                          alt={proposal.targetListing.title}
+                          className="w-12 h-12 rounded-lg object-cover"
+                        />
+                        <div>
+                          <p className="text-xs font-bold text-gray-900">{proposal.targetListing.title}</p>
+                          <p className="text-[11px] text-gray-700">Condition: {proposal.targetListing.condition}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <span className="text-[11px] font-bold text-purple-700 uppercase tracking-wider block mb-1.5">
+                        Offered in Swap ({proposal.offeredItems.length} item{proposal.offeredItems.length > 1 ? 's' : ''})
+                      </span>
+                      <div className="space-y-1.5">
+                        {proposal.offeredItems.map((item) => (
+                          <div key={item.id} className="flex items-center gap-2">
+                            <img
+                              src={item.listing.images[0] || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=100'}
+                              alt={item.listing.title}
+                              className="w-8 h-8 rounded-md object-cover"
+                            />
+                            <span className="text-xs font-semibold text-gray-800 truncate">{item.listing.title}</span>
+                          </div>
+                        ))}
+                      </div>
+                      {proposal.cashTopUp > 0 && (
+                        <div className="mt-2 text-xs font-bold text-emerald-700 bg-emerald-100/60 px-2.5 py-1 rounded-md inline-block">
+                          + Includes ${proposal.cashTopUp} Cash Top-Up from Buyer
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {proposal.notes && (
+                    <p className="text-xs text-gray-600 bg-white p-3 rounded-xl border border-gray-100 italic">
+                      "{proposal.notes}"
+                    </p>
+                  )}
+
+                  {/* Verification Code Box when ACCEPTED */}
+                  {proposal.status === 'ACCEPTED' && proposal.exchangeCode && (
+                    <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between">
+                      <div>
+                        <p className="text-xs font-bold text-emerald-900">Exchange Verification Code</p>
+                        <p className="text-xs text-emerald-700 mt-0.5">Share and verify this code during in-person physical meetup.</p>
+                      </div>
+                      <span className="px-4 py-1.5 bg-emerald-600 text-white font-mono font-black text-sm rounded-lg shadow-sm">
+                        {proposal.exchangeCode}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Actions */}
+                  <div className="flex items-center justify-between pt-2">
+                    <Link
+                      href={`/messages?recipientId=${proposal.initiatorId}&listingId=${proposal.targetListingId}`}
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-700"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5" /> Chat with Trader
+                    </Link>
+
+                    <div className="flex items-center gap-2">
+                      {proposal.status === 'PROPOSED' && (
+                        <>
+                          <button
+                            onClick={() => handleBarterAction(proposal.id, 'REJECT')}
+                            className="px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                          >
+                            Decline Swap
+                          </button>
+                          <button
+                            onClick={() => handleBarterAction(proposal.id, 'ACCEPT')}
+                            className="px-5 py-2 text-xs font-bold text-white bg-purple-600 hover:bg-purple-700 rounded-xl shadow-sm transition-all"
+                          >
+                            Accept Barter
+                          </button>
+                        </>
+                      )}
+
+                      {proposal.status === 'ACCEPTED' && (
+                        <button
+                          onClick={() => handleBarterAction(proposal.id, 'COMPLETE')}
+                          className="px-5 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-sm transition-all flex items-center gap-1.5"
+                        >
+                          <CheckCircle2 className="w-3.5 h-3.5" /> Mark Trade Handover Completed
+                        </button>
+                      )}
+
+                      {proposal.status === 'COMPLETED' && (
+                        <button
+                          onClick={() => openReviewForBarter(proposal)}
+                          className="px-4 py-2 text-xs font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl flex items-center gap-1.5"
+                        >
+                          <Star className="w-3.5 h-3.5 fill-amber-500" /> Leave Verified Review
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))
+            )
+          )}
+
+          {/* TAB 2: SENT BARTERS */}
+          {activeTab === 'SENT_BARTERS' && (
+            sentBarters.length === 0 ? (
+              <div className="p-12 text-center bg-white rounded-2xl border border-gray-200">
+                <Repeat className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+                <h3 className="font-bold text-gray-900 text-sm">No outgoing barter proposals</h3>
+                <p className="text-xs text-gray-700 mt-1">When you propose trades on listings, they will show up here.</p>
+              </div>
+            ) : (
+              sentBarters.map((proposal) => (
+                <div key={proposal.id} className="bg-white p-6 rounded-2xl border border-gray-200/80 shadow-sm space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+                    <div>
+                      <span className="text-xs text-gray-700">Sent to <strong>{proposal.recipient.name}</strong> • {formatDate(proposal.createdAt)}</span>
+                    </div>
+                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-800">
+                      {proposal.status}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={proposal.targetListing.images[0] || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=100'}
+                      alt={proposal.targetListing.title}
+                      className="w-12 h-12 rounded-lg object-cover"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-gray-700 font-semibold">You requested item:</p>
+                      <h4 className="text-sm font-bold text-gray-900 truncate">{proposal.targetListing.title}</h4>
+                      <p className="text-xs text-purple-700 font-semibold mt-0.5">
+                        Offered: {proposal.offeredItems.length} item(s) {proposal.cashTopUp > 0 ? `+ $${proposal.cashTopUp} cash` : ''}
+                      </p>
+                    </div>
+                  </div>
+
+                  {proposal.exchangeCode && (
+                    <div className="p-3 bg-emerald-50 rounded-xl text-xs text-emerald-800 flex items-center justify-between">
+                      <span>Meetup Verification Code:</span>
+                      <strong className="font-mono font-bold text-sm">{proposal.exchangeCode}</strong>
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between pt-2">
+                    <Link
+                      href={`/messages?recipientId=${proposal.recipientId}&listingId=${proposal.targetListingId}`}
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-700"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5" /> Chat with Owner
+                    </Link>
+
+                    {proposal.status === 'COMPLETED' && (
+                      <button
+                        onClick={() => openReviewForBarter(proposal)}
+                        className="px-4 py-1.5 text-xs font-bold text-amber-700 bg-amber-50 rounded-xl"
+                      >
+                        Leave Review
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))
+            )
+          )}
+
+          {/* TAB 3: RECEIVED CASH OFFERS */}
+          {activeTab === 'RECEIVED_OFFERS' && (
+            receivedOffers.length === 0 ? (
+              <div className="p-12 text-center bg-white rounded-2xl border border-gray-200">
+                <DollarSign className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+                <h3 className="font-bold text-gray-900 text-sm">No incoming cash offers</h3>
+                <p className="text-xs text-gray-700 mt-1">Offers made by buyers on your items will appear here.</p>
+              </div>
+            ) : (
+              receivedOffers.map((offer) => (
+                <div key={offer.id} className="bg-white p-6 rounded-2xl border border-gray-200/80 shadow-sm space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+                    <div className="flex items-center gap-2.5">
+                      <img
+                        src={offer.buyer.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
+                        alt={offer.buyer.name}
+                        className="w-9 h-9 rounded-full object-cover"
+                      />
+                      <div>
+                        <span className="font-bold text-sm text-gray-900">{offer.buyer.name}</span>
+                        <p className="text-xs text-gray-700">Offered {formatDate(offer.createdAt)}</p>
+                      </div>
+                    </div>
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                      offer.status === 'ACCEPTED'
+                        ? 'bg-emerald-100 text-emerald-800'
+                        : offer.status === 'COUNTERED'
+                        ? 'bg-amber-100 text-amber-800'
+                        : 'bg-gray-100 text-gray-800'
+                    }`}>
+                      {offer.status}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-4 bg-slate-50 p-3.5 rounded-xl">
+                    <img
+                      src={offer.listing.images[0] || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=100'}
+                      alt={offer.listing.title}
+                      className="w-12 h-12 rounded-lg object-cover"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-xs font-bold text-gray-900 truncate">{offer.listing.title}</h4>
+                      <p className="text-xs text-gray-700">List Asking Price: {formatPrice(offer.listing.price)}</p>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-[11px] text-gray-700 block">Offer Amount</span>
+                      <span className="text-xl font-black text-emerald-600">{formatPrice(offer.offerAmount)}</span>
+                      {offer.counterAmount && (
+                        <p className="text-xs text-amber-600 font-bold">Countered: {formatPrice(offer.counterAmount)}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {offer.message && (
+                    <p className="text-xs text-gray-600 italic bg-white p-3 rounded-xl border border-gray-100">
+                      "{offer.message}"
+                    </p>
+                  )}
+
+                  {/* Counter Offer Input Box */}
+                  {counterInputId === offer.id && (
+                    <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-3">
+                      <span className="text-xs font-bold text-amber-900">Your Counter Price: $</span>
+                      <input
+                        type="number"
+                        step="0.5"
+                        value={counterAmount}
+                        onChange={(e) => setCounterAmount(e.target.value)}
+                        placeholder="Enter counter"
+                        className="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-xs w-28 font-bold"
+                      />
+                      <button
+                        onClick={() => handleOfferAction(offer.id, 'COUNTER', parseFloat(counterAmount))}
+                        className="px-3 py-1.5 bg-amber-600 text-white rounded-lg text-xs font-bold hover:bg-amber-700"
+                      >
+                        Send Counter
+                      </button>
+                      <button
+                        onClick={() => setCounterInputId(null)}
+                        className="text-xs text-gray-500 hover:text-gray-700"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between pt-2">
+                    <Link
+                      href={`/messages?recipientId=${offer.buyerId}&listingId=${offer.listingId}`}
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-700"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5" /> Chat with Buyer
+                    </Link>
+
+                    <div className="flex items-center gap-2">
+                      {offer.status === 'PENDING' && (
+                        <>
+                          <button
+                            onClick={() => handleOfferAction(offer.id, 'DECLINE')}
+                            className="px-3 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50 rounded-lg"
+                          >
+                            Decline
+                          </button>
+                          <button
+                            onClick={() => setCounterInputId(offer.id)}
+                            className="px-3 py-1.5 text-xs font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg"
+                          >
+                            Counter-Offer
+                          </button>
+                          <button
+                            onClick={() => handleOfferAction(offer.id, 'ACCEPT')}
+                            className="px-4 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg"
+                          >
+                            Accept ${offer.offerAmount}
+                          </button>
+                        </>
+                      )}
+
+                      {offer.status === 'ACCEPTED' && (
+                        <button
+                          onClick={() => handleOfferAction(offer.id, 'COMPLETE')}
+                          className="px-4 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg"
+                        >
+                          Mark Sale Completed
+                        </button>
+                      )}
+
+                      {offer.status === 'COMPLETED' && (
+                        <button
+                          onClick={() => openReviewForOffer(offer)}
+                          className="px-4 py-1.5 text-xs font-bold text-amber-700 bg-amber-50 rounded-lg flex items-center gap-1"
+                        >
+                          <Star className="w-3.5 h-3.5 fill-amber-500" /> Review Buyer
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))
+            )
+          )}
+
+          {/* TAB 4: SENT CASH OFFERS */}
+          {activeTab === 'SENT_OFFERS' && (
+            sentOffers.length === 0 ? (
+              <div className="p-12 text-center bg-white rounded-2xl border border-gray-200">
+                <DollarSign className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+                <h3 className="font-bold text-gray-900 text-sm">No outgoing cash offers</h3>
+                <p className="text-xs text-gray-700 mt-1">Browse the catalog to make an offer on any book or gear listing.</p>
+              </div>
+            ) : (
+              sentOffers.map((offer) => (
+                <div key={offer.id} className="bg-white p-6 rounded-2xl border border-gray-200/80 shadow-sm space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+                    <span className="text-xs text-gray-700">Sent to seller <strong>{offer.seller.name}</strong> • {formatDate(offer.createdAt)}</span>
+                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
+                      {offer.status}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <img
+                      src={offer.listing.images[0] || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=100'}
+                      alt={offer.listing.title}
+                      className="w-12 h-12 rounded-lg object-cover"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-sm font-bold text-gray-900 truncate">{offer.listing.title}</h4>
+                      <p className="text-xs text-emerald-600 font-bold mt-0.5">Your Offer: {formatPrice(offer.offerAmount)}</p>
+                      {offer.counterAmount && (
+                        <p className="text-xs text-amber-600 font-bold">Seller Countered: {formatPrice(offer.counterAmount)}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2">
+                    <Link
+                      href={`/messages?recipientId=${offer.sellerId}&listingId=${offer.listingId}`}
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-700"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5" /> Open Chat Thread
+                    </Link>
+
+                    {offer.status === 'COUNTERED' && (
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleOfferAction(offer.id, 'ACCEPT')}
+                          className="px-4 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg"
+                        >
+                          Accept Counter ${offer.counterAmount}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))
+            )
+          )}
+
+        </div>
+      )}
+
+      {/* Review Modal */}
+      {reviewTarget && (
+        <ReviewModal
+          isOpen={reviewModalOpen}
+          onClose={() => {
+            setReviewModalOpen(false);
+            setReviewTarget(null);
+          }}
+          targetUserId={reviewTarget.targetUserId}
+          targetUserName={reviewTarget.targetUserName}
+          listingId={reviewTarget.listingId}
+          transactionType={reviewTarget.transactionType}
+          onReviewSubmitted={() => {
+            fetchDashboardData();
+          }}
+        />
+      )}
+
+    </div>
+  );
+}

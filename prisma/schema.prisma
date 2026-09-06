@@ -1,0 +1,385 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  MODERATOR
+  ADMIN
+}
+
+enum ListingType {
+  BOOK
+  PRODUCT
+}
+
+enum ExchangeType {
+  CASH_ONLY
+  BARTER_ONLY
+  HYBRID
+}
+
+enum ItemCondition {
+  BRAND_NEW
+  LIKE_NEW
+  VERY_GOOD
+  GOOD
+  ACCEPTABLE
+}
+
+enum ListingStatus {
+  ACTIVE
+  RESERVED
+  PENDING_EXCHANGE
+  SOLD
+  TRADED
+  ARCHIVED
+}
+
+enum BookFormat {
+  HARDCOVER
+  PAPERBACK
+  MASS_MARKET
+  SPIRAL
+  OTHER
+}
+
+enum OfferStatus {
+  PENDING
+  COUNTERED
+  ACCEPTED
+  DECLINED
+  EXPIRED
+  CANCELLED
+  COMPLETED
+}
+
+enum BarterStatus {
+  PROPOSED
+  COUNTERED
+  ACCEPTED
+  REJECTED
+  CANCELLED
+  COMPLETED
+}
+
+enum MessageType {
+  TEXT
+  CASH_OFFER_CARD
+  BARTER_PROPOSAL_CARD
+  SYSTEM_ALERT
+}
+
+enum TransactionType {
+  CASH_SALE
+  BARTER_EXCHANGE
+}
+
+enum ReportStatus {
+  OPEN
+  RESOLVED
+  DISMISSED
+}
+
+enum PromotionType {
+  FEATURED
+  URGENT
+  TOP
+}
+
+enum NotificationType {
+  OFFER
+  BARTER
+  MESSAGE
+  PRICE_DROP
+  SYSTEM
+}
+
+model User {
+  id               String       @id @default(cuid())
+  name             String
+  email            String       @unique
+  password         String
+  avatar           String?
+  bio              String?
+  phone            String?
+  city             String       @default("New York")
+  state            String       @default("NY")
+  country          String       @default("USA")
+  postalCode       String?
+  role             Role         @default(USER)
+  isVerified       Boolean      @default(false)
+  reputationScore  Float        @default(5.0)
+  totalReviews     Int          @default(0)
+  totalTrades      Int          @default(0)
+  totalSales       Int          @default(0)
+  responseRate     Int          @default(100)
+  avgResponseTime  String       @default("Within 1 hour")
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  listings               Listing[]
+  sentOffers             CashOffer[]       @relation("BuyerOffers")
+  receivedOffers         CashOffer[]       @relation("SellerOffers")
+  sentBarters            BarterProposal[]  @relation("InitiatorBarters")
+  receivedBarters        BarterProposal[]  @relation("RecipientBarters")
+  sentMessages           Message[]         @relation("SentMessages")
+  receivedMessages       Message[]         @relation("ReceivedMessages")
+  conversationsInitiated Conversation[]    @relation("ParticipantA")
+  conversationsReceived  Conversation[]    @relation("ParticipantB")
+  writtenReviews         Review[]          @relation("Reviewer")
+  receivedReviews        Review[]          @relation("TargetUser")
+  savedListings          SavedListing[]
+  reportsSubmitted       Report[]          @relation("Reporter")
+  reportsReceived        Report[]          @relation("ReportedUser")
+  notifications          Notification[]
+  savedSearches          SavedSearch[]
+  following              Follow[]          @relation("Follower")
+  followers              Follow[]          @relation("Following")
+}
+
+model Listing {
+  id                String         @id @default(cuid())
+  userId            String
+  user              User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title             String
+  description       String         @db.Text
+  listingType       ListingType
+  exchangeType      ExchangeType
+  price             Float?
+  currency          String         @default("USD")
+  isNegotiable      Boolean        @default(true)
+  condition         ItemCondition
+  status            ListingStatus  @default(ACTIVE)
+  images            String[]
+  city              String
+  state             String
+  pickupAvailable   Boolean        @default(true)
+  shippingAvailable Boolean        @default(false)
+  shippingCost      Float?
+  barterWishlist    String?        @db.Text
+  viewsCount        Int            @default(0)
+  sharesCount       Int            @default(0)
+  previousPrice     Float?
+  isFeatured        Boolean        @default(false)
+  isUrgent          Boolean        @default(false)
+  isTopAd           Boolean        @default(false)
+  featuredUntil     DateTime?
+  urgentUntil       DateTime?
+  topUntil          DateTime?
+  expiresAt         DateTime?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  bookDetails              BookDetails?
+  productDetails           ProductDetails?
+  cashOffers               CashOffer[]
+  barterProposalsAsTarget  BarterProposal[] @relation("TargetListing")
+  barterProposalsOffered   BarterItem[]
+  conversations            Conversation[]
+  savedByUsers             SavedListing[]
+  reviews                  Review[]
+  priceHistory             PriceHistory[]
+  notifications            Notification[]
+  reports                  Report[]
+}
+
+model BookDetails {
+  id              String      @id @default(cuid())
+  listingId       String      @unique
+  listing         Listing     @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  isbn            String?
+  isbn13          String?
+  author          String
+  publisher       String?
+  publicationYear Int?
+  edition         String?
+  genre           String
+  format          BookFormat  @default(PAPERBACK)
+  language        String      @default("English")
+  pageCount       Int?
+  hasAnnotations  Boolean     @default(false)
+  academicSubject String?
+  courseCode      String?
+}
+
+model ProductDetails {
+  id                  String   @id @default(cuid())
+  listingId           String   @unique
+  listing             Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  category            String
+  subCategory         String?
+  brand               String?
+  model               String?
+  includesOriginalBox Boolean  @default(false)
+  includesAccessories Boolean  @default(false)
+  warrantyStatus      String?
+}
+
+model CashOffer {
+  id             String       @id @default(cuid())
+  listingId      String
+  listing        Listing      @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  buyerId        String
+  buyer          User         @relation("BuyerOffers", fields: [buyerId], references: [id], onDelete: Cascade)
+  sellerId       String
+  seller         User         @relation("SellerOffers", fields: [sellerId], references: [id], onDelete: Cascade)
+  offerAmount    Float
+  counterAmount  Float?
+  status         OfferStatus  @default(PENDING)
+  message        String?      @db.Text
+  expiresAt      DateTime?
+  conversationId String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model BarterProposal {
+  id              String        @id @default(cuid())
+  initiatorId     String
+  initiator       User          @relation("InitiatorBarters", fields: [initiatorId], references: [id], onDelete: Cascade)
+  recipientId     String
+  recipient       User          @relation("RecipientBarters", fields: [recipientId], references: [id], onDelete: Cascade)
+  targetListingId String
+  targetListing   Listing       @relation("TargetListing", fields: [targetListingId], references: [id], onDelete: Cascade)
+  cashTopUp       Float         @default(0)
+  status          BarterStatus  @default(PROPOSED)
+  exchangeCode    String?
+  notes           String?       @db.Text
+  conversationId  String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  offeredItems    BarterItem[]
+}
+
+model BarterItem {
+  id         String         @id @default(cuid())
+  proposalId String
+  proposal   BarterProposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  listingId  String
+  listing    Listing        @relation(fields: [listingId], references: [id], onDelete: Cascade)
+}
+
+model Conversation {
+  id             String    @id @default(cuid())
+  participantAId String
+  participantA   User      @relation("ParticipantA", fields: [participantAId], references: [id], onDelete: Cascade)
+  participantBId String
+  participantB   User      @relation("ParticipantB", fields: [participantBId], references: [id], onDelete: Cascade)
+  listingId      String?
+  listing        Listing?  @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  lastMessageAt  DateTime  @default(now())
+  createdAt      DateTime  @default(now())
+
+  messages       Message[]
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User         @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiverId     String
+  receiver       User         @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+  content        String       @db.Text
+  messageType    MessageType  @default(TEXT)
+  metadata       String?      @db.Text
+  isRead         Boolean      @default(false)
+  readAt         DateTime?
+  createdAt      DateTime     @default(now())
+}
+
+model Review {
+  id                  String          @id @default(cuid())
+  reviewerId          String
+  reviewer            User            @relation("Reviewer", fields: [reviewerId], references: [id], onDelete: Cascade)
+  targetUserId        String
+  targetUser          User            @relation("TargetUser", fields: [targetUserId], references: [id], onDelete: Cascade)
+  listingId           String?
+  listing             Listing?        @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  transactionType     TransactionType
+  overallRating       Int
+  conditionRating     Int
+  communicationRating Int
+  punctualityRating   Int
+  comment             String          @db.Text
+  isVerified          Boolean         @default(true)
+  createdAt           DateTime        @default(now())
+}
+
+model SavedListing {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, listingId])
+}
+
+model Report {
+  id             String       @id @default(cuid())
+  reporterId     String
+  reporter       User         @relation("Reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  reportedUserId String
+  reportedUser   User         @relation("ReportedUser", fields: [reportedUserId], references: [id], onDelete: Cascade)
+  listingId      String?
+  listing        Listing?     @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  reason         String
+  details        String?      @db.Text
+  status         ReportStatus @default(OPEN)
+  createdAt      DateTime     @default(now())
+}
+
+model PriceHistory {
+  id        String   @id @default(cuid())
+  listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  price     Float
+  createdAt DateTime @default(now())
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  title     String
+  body      String
+  href      String?
+  listingId String?
+  listing   Listing?         @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@index([userId, isRead])
+}
+
+model SavedSearch {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label     String
+  query     String
+  href      String
+  createdAt DateTime @default(now())
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  follower    User     @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+  followingId String
+  following   User     @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
+}
