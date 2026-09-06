@@ -52,6 +52,49 @@ This project started as a clone of the [sijeeshmiziha/olx](https://github.com/si
 
 ---
 
+## 🗄️ Database Architecture & Schema Structure
+
+BarterHub runs on **PostgreSQL 16** managed via **Prisma ORM**. The database contains 16 models and 13 enums:
+
+```mermaid
+erDiagram
+    User ||--o{ Listing : "owns"
+    User ||--o{ CashOffer : "sends/receives"
+    User ||--o{ BarterProposal : "initiates/receives"
+    User ||--o{ Message : "sends/receives"
+    User ||--o{ Review : "writes/receives"
+    
+    Listing ||--o| BookDetails : "has optional"
+    Listing ||--o| ProductDetails : "has optional"
+    Listing ||--o{ CashOffer : "receives"
+    Listing ||--o{ BarterProposal : "target of"
+    
+    BarterProposal ||--o{ BarterItem : "contains items offered"
+    Listing ||--o{ BarterItem : "offered in"
+    
+    Conversation ||--o{ Message : "contains"
+    User ||--o{ Conversation : "participates in"
+```
+
+### Core Entities
+
+| Model | Description | Key Fields & Relations |
+|---|---|---|
+| **`User`** | Platform user profiles, trust stats, reputation | `email`, `reputationScore`, `totalTrades`, `role` |
+| **`Listing`** | Classified items listed for sale/trade | `listingType` (BOOK/PRODUCT), `exchangeType` (CASH/BARTER/HYBRID), `status` |
+| **`BookDetails`** | Academic & literary metadata | `isbn`, `author`, `academicSubject`, `courseCode`, `hasAnnotations` |
+| **`ProductDetails`** | Electronics & general item metadata | `category`, `brand`, `model`, `includesOriginalBox` |
+| **`CashOffer`** | Price negotiation and counter-offers | `offerAmount`, `counterAmount`, `status` (PENDING/COUNTERED/ACCEPTED/DECLINED) |
+| **`BarterProposal`** | Item-for-item and hybrid barter deals | `targetListingId`, `cashTopUp`, `exchangeCode`, `status` |
+| **`BarterItem`** | Multi-item barter mapping table | `proposalId`, `listingId` |
+| **`Conversation`** | Chat thread between 2 traders | `participantAId`, `participantBId`, `listingId` |
+| **`Message`** | In-thread text or actionable offer card | `messageType` (TEXT/CASH_OFFER_CARD/BARTER_PROPOSAL_CARD), `metadata` |
+| **`Review`** | Verified dual-sided trader rating | `overallRating`, `communicationRating`, `punctualityRating`, `isVerified` |
+| **`SavedListing`** | User bookmarking / favorites | Unique constraint on `[userId, listingId]` |
+| **`Notification`** | In-app activity notifications | `type` (OFFER/BARTER/MESSAGE/PRICE_DROP), `isRead` |
+
+---
+
 ## Quick Start
 
 ### Prerequisites
