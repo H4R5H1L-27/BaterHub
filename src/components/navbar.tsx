@@ -44,24 +44,34 @@ export default function Navbar() {
         const res = await fetch('/api/auth/me');
         if (res.ok) {
           const data = await res.json();
-          setUser(data.user);
+          if (data.user) {
+            setUser(data.user);
+            fetch('/api/notifications')
+              .then((r) => r.json())
+              .then((d) => {
+                setUnread(d.unread || 0);
+                setNotes(d.notifications || []);
+              })
+              .catch(() => {});
+            fetch('/api/conversations')
+              .then((r) => r.json())
+              .then((d) => setChatUnread(d.unreadTotal || 0))
+              .catch(() => {});
+            return;
+          }
         }
+        setUser(null);
+        setUnread(0);
+        setChatUnread(0);
+        setNotes([]);
       } catch {
-        /* ignore */
+        setUser(null);
+        setUnread(0);
+        setChatUnread(0);
+        setNotes([]);
       }
     };
     checkAuth();
-    fetch('/api/notifications')
-      .then((r) => r.json())
-      .then((d) => {
-        setUnread(d.unread || 0);
-        setNotes(d.notifications || []);
-      })
-      .catch(() => {});
-    fetch('/api/conversations')
-      .then((r) => r.json())
-      .then((d) => setChatUnread(d.unreadTotal || 0))
-      .catch(() => {});
   }, [pathname]);
 
   const handleLogout = async () => {
@@ -113,10 +123,10 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 bg-surface-container-lowest/95 backdrop-blur-xl border-b border-outline-variant/30 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20 gap-3">
+        <div className="flex items-center justify-between h-16 sm:h-18 gap-2.5 lg:gap-4">
           {/* Brand Logo */}
-          <Link href="/" className="flex items-center gap-2.5 shrink-0 focus:outline-none group">
-            <svg className="h-10 w-auto" viewBox="0 0 180 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <Link href="/" className="flex items-center gap-2 shrink-0 focus:outline-none group">
+            <svg className="h-8 sm:h-9 w-auto" viewBox="0 0 180 44" fill="none" xmlns="http://www.w3.org/2000/svg">
               <rect width="40" height="40" rx="12" fill="#4648d4" />
               <path d="M14 16H26M26 16L22 12M26 16L22 20" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
               <path d="M26 24H14M14 24L18 20M14 24L18 28" stroke="#FBBF24" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -127,13 +137,13 @@ export default function Navbar() {
           </Link>
 
           {/* Center Search Bar with Location Pill */}
-          <div className="hidden lg:flex items-center flex-1 max-w-2xl bg-surface-container-low rounded-full px-2 py-1.5 border border-outline-variant/40 shadow-inner">
-            <label className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-lowest text-xs font-semibold text-on-surface shadow-sm cursor-pointer hover:bg-surface-container transition-colors">
-              <MapPin className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+          <div className="hidden lg:flex items-center flex-1 max-w-sm xl:max-w-md bg-surface-container-low rounded-full px-2 py-1 border border-outline-variant/40 shadow-inner">
+            <label className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-lowest text-xs font-semibold text-on-surface shadow-xs cursor-pointer hover:bg-surface-container transition-colors shrink-0">
+              <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
               <select
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
-                className="bg-transparent focus:outline-none cursor-pointer max-w-[110px] text-xs"
+                className="bg-transparent focus:outline-none cursor-pointer max-w-[85px] text-xs font-medium truncate"
                 aria-label="Location"
               >
                 {CITIES.map((c) => (
@@ -144,21 +154,21 @@ export default function Navbar() {
               </select>
             </label>
 
-            <div className="h-5 w-px bg-outline-variant/60 mx-2" />
+            <div className="h-4 w-px bg-outline-variant/60 mx-1.5 shrink-0" />
 
-            <form onSubmit={handleSearchSubmit} className="relative flex-1 flex items-center">
-              <Search className="w-4 h-4 text-outline mr-2 shrink-0 pointer-events-none" />
+            <form onSubmit={handleSearchSubmit} className="relative flex-1 min-w-0 flex items-center">
+              <Search className="w-3.5 h-3.5 text-outline mr-1.5 shrink-0 pointer-events-none" />
               <input
                 ref={searchRef}
                 type="text"
-                placeholder="Search books, gear, electronics to barter..."
+                placeholder="Search books, gear..."
                 value={searchQuery}
                 onFocus={() => setSearchOpen(true)}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-transparent border-none focus:outline-none text-xs text-on-surface placeholder:text-outline/80"
+                className="w-full min-w-0 bg-transparent border-none focus:outline-none text-xs text-on-surface placeholder:text-outline/80"
               />
 
-              <div className="flex items-center gap-1 shrink-0 ml-1">
+              <div className="flex items-center gap-0.5 shrink-0 ml-1">
                 {searchQuery && (
                   <button
                     type="button"
@@ -175,7 +185,7 @@ export default function Navbar() {
                 <button
                   type="button"
                   onClick={startVoice}
-                  className={`p-1.5 rounded-full transition-all ${
+                  className={`p-1 rounded-full transition-all ${
                     isListening
                       ? 'bg-clay text-white animate-pulse'
                       : 'text-outline hover:text-primary hover:bg-surface-container'
@@ -187,14 +197,14 @@ export default function Navbar() {
                 </button>
                 <button
                   type="submit"
-                  className="px-3 py-1 bg-primary text-white text-xs font-semibold rounded-full hover:bg-primary-container transition-all shadow-sm"
+                  className="px-2.5 py-1 bg-primary text-white text-xs font-semibold rounded-full hover:bg-primary-container transition-all shadow-xs shrink-0"
                 >
                   Search
                 </button>
               </div>
 
               {searchOpen && (
-                <div className="absolute top-12 left-0 right-0 bg-surface-container-lowest border border-outline-variant/50 rounded-2xl shadow-lift p-3 z-50">
+                <div className="absolute top-11 left-0 right-0 bg-surface-container-lowest border border-outline-variant/50 rounded-2xl shadow-lift p-3 z-50">
                   {recentSearches.length > 0 && (
                     <div className="mb-2.5">
                       <p className="text-[10px] uppercase tracking-wider text-outline font-bold mb-1">Recent Searches</p>
@@ -229,10 +239,10 @@ export default function Navbar() {
           </div>
 
           {/* Desktop Nav Links */}
-          <nav className="hidden xl:flex items-center gap-1.5">
+          <nav className="hidden xl:flex items-center gap-1 shrink-0">
             <Link
               href="/listings"
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+              className={`whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-semibold transition-all shrink-0 ${
                 pathname.startsWith('/listings') && pathname !== '/listings/new'
                   ? 'bg-primary-container text-white shadow-sm'
                   : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low'
@@ -242,37 +252,37 @@ export default function Navbar() {
             </Link>
             <Link
               href="/offers"
-              className={`relative px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+              className={`whitespace-nowrap inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all shrink-0 ${
                 pathname.startsWith('/offers')
                   ? 'bg-primary-container text-white shadow-sm'
                   : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low'
               }`}
             >
-              Offers & Swaps
-              {unread > 0 && (
-                <span className="ml-1.5 inline-flex items-center justify-center px-1.5 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-bold text-[10px]">
+              <span>Offers & Swaps</span>
+              {user && unread > 0 && (
+                <span className="inline-flex items-center justify-center px-1.5 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-bold text-[10px] shrink-0 leading-none">
                   {unread}
                 </span>
               )}
             </Link>
             <Link
               href="/messages"
-              className={`relative px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+              className={`whitespace-nowrap inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all shrink-0 ${
                 pathname.startsWith('/messages')
                   ? 'bg-primary-container text-white shadow-sm'
                   : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low'
               }`}
             >
-              Messages
-              {chatUnread > 0 && (
-                <span className="ml-1.5 inline-flex items-center justify-center px-1.5 py-0.5 rounded-full bg-primary text-white font-bold text-[10px]">
+              <span>Messages</span>
+              {user && chatUnread > 0 && (
+                <span className="inline-flex items-center justify-center px-1.5 py-0.5 rounded-full bg-primary text-white font-bold text-[10px] shrink-0 leading-none">
                   {chatUnread}
                 </span>
               )}
             </Link>
             <Link
               href="/dashboard"
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+              className={`whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-semibold transition-all shrink-0 ${
                 pathname === '/dashboard'
                   ? 'bg-primary-container text-white shadow-sm'
                   : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low'
@@ -282,7 +292,7 @@ export default function Navbar() {
             </Link>
             <Link
               href="/favorites"
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+              className={`whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-semibold transition-all shrink-0 ${
                 pathname === '/favorites'
                   ? 'bg-primary-container text-white shadow-sm'
                   : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low'
@@ -296,9 +306,9 @@ export default function Navbar() {
           <div className="flex items-center gap-2 shrink-0">
             <Link
               href="/listings/new"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-secondary hover:bg-secondary-container text-white text-xs font-bold shadow-[0_4px_14px_rgba(113,42,226,0.3)] transition-all transform hover:-translate-y-0.5"
+              className="whitespace-nowrap inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-secondary hover:bg-secondary-container text-white text-xs font-bold shadow-[0_4px_14px_rgba(113,42,226,0.3)] transition-all transform hover:-translate-y-0.5 shrink-0"
             >
-              <PlusCircle className="w-4 h-4" />
+              <PlusCircle className="w-3.5 h-3.5" />
               <span>Post Barter</span>
             </Link>
 
@@ -438,7 +448,7 @@ export default function Navbar() {
               className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold hover:bg-surface-container-low"
             >
               <span>Offers & Swaps</span>
-              {unread > 0 && (
+              {user && unread > 0 && (
                 <span className="px-2 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-bold text-[10px]">
                   {unread}
                 </span>
@@ -450,7 +460,7 @@ export default function Navbar() {
               className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold hover:bg-surface-container-low"
             >
               <span>Messages</span>
-              {chatUnread > 0 && (
+              {user && chatUnread > 0 && (
                 <span className="px-2 py-0.5 rounded-full bg-primary text-white font-bold text-[10px]">
                   {chatUnread}
                 </span>

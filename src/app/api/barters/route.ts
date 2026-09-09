@@ -13,9 +13,6 @@ export async function GET(req: NextRequest) {
       if (demoEmail) {
         user = await prisma.user.findUnique({ where: { email: demoEmail } });
       }
-      if (!user) {
-        user = await prisma.user.findFirst();
-      }
     }
 
     if (!user) {
@@ -135,10 +132,6 @@ export async function POST(req: NextRequest) {
       const demoEmail = req.headers.get('x-demo-user');
       if (demoEmail) {
         user = await prisma.user.findUnique({ where: { email: demoEmail } });
-      }
-      if (!user) {
-        const users = await prisma.user.findMany({ take: 2 });
-        user = users.length > 1 ? users[1] : users[0];
       }
     }
 

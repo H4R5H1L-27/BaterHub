@@ -13,6 +13,26 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'conversationId is required.' }, { status: 400 });
     }
 
+    let user = await getUserFromRequest(req);
+    if (!user) {
+      const demoEmail = req.headers.get('x-demo-user');
+      if (demoEmail) {
+        user = await prisma.user.findUnique({ where: { email: demoEmail } });
+      }
+    }
+
+    if (!user) {
+      return NextResponse.json({ error: 'Authentication required.' }, { status: 401 });
+    }
+
+    const conversation = await prisma.conversation.findUnique({
+      where: { id: conversationId },
+    });
+
+    if (!conversation || (conversation.participantAId !== user.id && conversation.participantBId !== user.id)) {
+      return NextResponse.json({ error: 'Conversation not found or unauthorized.' }, { status: 404 });
+    }
+
     const messages = await prisma.message.findMany({
       where: { conversationId },
       orderBy: { createdAt: 'asc' },
@@ -41,9 +61,6 @@ export async function POST(req: NextRequest) {
       const demoEmail = req.headers.get('x-demo-user');
       if (demoEmail) {
         user = await prisma.user.findUnique({ where: { email: demoEmail } });
-      }
-      if (!user) {
-        user = await prisma.user.findFirst();
       }
     }
 

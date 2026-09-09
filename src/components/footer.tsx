@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { ArrowLeftRight, ShieldCheck, Repeat, HeartHandshake, Sparkles } from 'lucide-react';
+import { ArrowLeftRight, ShieldCheck, Repeat, HeartHandshake, Sparkles, Database } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -82,6 +82,7 @@ export default function Footer() {
               <li><Link href="/offers" className="hover:text-primary transition-colors">Offers & Swaps Hub</Link></li>
               <li><Link href="/messages" className="hover:text-primary transition-colors">Negotiation Chats</Link></li>
               <li><Link href="/dashboard" className="hover:text-primary transition-colors">My Listings Desk</Link></li>
+              <li><Link href="/database" className="hover:text-primary transition-colors flex items-center gap-1.5"><Database className="w-3.5 h-3.5 text-primary" /> Database & ER Architecture</Link></li>
             </ul>
           </div>
 

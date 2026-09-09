@@ -12,13 +12,10 @@ export async function GET(req: NextRequest) {
       if (demoEmail) {
         user = await prisma.user.findUnique({ where: { email: demoEmail } });
       }
-      if (!user) {
-        user = await prisma.user.findFirst();
-      }
     }
 
     if (!user) {
-      return NextResponse.json({ conversations: [] });
+      return NextResponse.json({ conversations: [], unreadTotal: 0 });
     }
 
     const conversations = await prisma.conversation.findMany({
@@ -90,9 +87,6 @@ export async function POST(req: NextRequest) {
       const demoEmail = req.headers.get('x-demo-user');
       if (demoEmail) {
         user = await prisma.user.findUnique({ where: { email: demoEmail } });
-      }
-      if (!user) {
-        user = await prisma.user.findFirst();
       }
     }
 

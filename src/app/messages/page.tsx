@@ -40,9 +40,20 @@ function MessagesContent() {
   const fetchConversations = async () => {
     try {
       const userRes = await fetch('/api/auth/me');
+      let authedUser: UserSummary | null = null;
       if (userRes.ok) {
         const uData = await userRes.json();
-        setCurrentUser(uData.user);
+        if (uData.user) {
+          authedUser = uData.user;
+          setCurrentUser(uData.user);
+        }
+      }
+
+      if (!authedUser) {
+        setConversations([]);
+        setSelectedConversation(null);
+        setLoading(false);
+        return;
       }
 
       // If initialRecipientId is present in URL, ensure a conversation exists
@@ -172,6 +183,26 @@ function MessagesContent() {
     if (!currentUser) return conv.participantB;
     return conv.participantA.id === currentUser.id ? conv.participantB : conv.participantA;
   };
+
+  if (!loading && !currentUser) {
+    return (
+      <div className="max-w-md mx-auto px-4 py-24 text-center space-y-4">
+        <div className="w-14 h-14 rounded-3xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto shadow-sm">
+          <MessageSquare className="w-7 h-7" />
+        </div>
+        <h2 className="text-xl font-bold text-gray-900">Sign in to view negotiations</h2>
+        <p className="text-xs text-gray-500">
+          Negotiations, live trade chats, and barter verification PINs are private and only visible to authenticated barter participants.
+        </p>
+        <Link
+          href="/login?redirect=/messages"
+          className="inline-block px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-bold hover:bg-indigo-700 transition-colors shadow-sm"
+        >
+          Sign In to Access Chats
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 h-[calc(100vh-5rem)]">

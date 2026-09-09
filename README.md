@@ -1,8 +1,87 @@
 # BarterHub — Modern Circular Peer-to-Peer Product & Book Exchange Platform
 
-![Next.js](https://img.shields.io/badge/Next.js-14.2-black?logo=next.js) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql&logoColor=white) ![Prisma](https://img.shields.io/badge/Prisma-5.22-2D3748?logo=prisma) ![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-3.4-06B6D4?logo=tailwindcss) ![Design System](https://img.shields.io/badge/Design_System-Stitch_Soft_Modernism-4648D4)
+<p align="center">
+  <img src="public/screenshots/barterhub-logo.png" alt="BarterHub Brand Logo" width="280" />
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-14.2-black?logo=next.js" alt="Next.js" />
+  <img src="https://img.shields.io/badge/TypeScript-5-blue?logo=typescript" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql&logoColor=white" alt="PostgreSQL" />
+  <img src="https://img.shields.io/badge/Prisma-5.22-2D3748?logo=prisma" alt="Prisma" />
+  <img src="https://img.shields.io/badge/TailwindCSS-3.4-06B6D4?logo=tailwindcss" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/Design_System-Stitch_Soft_Modernism-4648D4" alt="Design System" />
+  <img src="https://img.shields.io/badge/License-MIT-green" alt="License" />
+</p>
 
 **BarterHub** is a production-grade circular classifieds and exchange platform engineered for swapping, buying, and selling second-hand books, academic textbooks, and high-performance tech gear. It delivers a zero-cash peer economy through direct item-for-item bartering, hybrid cash top-ups, in-thread deal negotiation cards, and physical 6-digit PIN handshake verification tokens.
+
+---
+
+## 📸 Visual Showcase & Screen Walkthrough
+
+BarterHub is crafted with the **Stitch Soft Modernism** design language — blending silky light surfaces, friendly rounded corner radii (24px panels, full pill triggers), electric indigo (`#4648D4`) and vivid violet (`#712AE2`) accents, warm amber valuation badges, and tactile drop shadows for a responsive, modern experience.
+
+### 1. 🔍 Catalog & Faceted Search (`/listings`)
+Faceted discovery rail featuring an interactive valuation histogram distribution slider, exchange mode filter pills (**True Barter**, **Hybrid Swap**, **Cash Direct**), curriculum tags, condition rubrics, verified campus spot badges, and soft-modern item cards.
+
+![Explore Catalog & Faceted Search](public/screenshots/explore-catalog.png)
+
+---
+
+### 2. 📦 Listing Detail & Interactive Barter Proposal Modal (`/listings/:id`)
+Comprehensive item dossier displaying owner trade wishlists, academic and hardware specifications, verified safety badges, and an interactive proposal modal for selecting items from posted inventory + calculating recommended cash top-up offsets.
+
+![Listing Detail & Barter Modal](public/screenshots/listing-detail.png)
+
+---
+
+### 3. ➕ Publish Barter Ad Wizard & Live Preview (`/listings/new`)
+4-step progressive listing wizard with adaptive form schemas for tech gear and books, algorithmic valuation spectrum slider, target wishlist tags, safe handover spot picker, and a sticky live marketplace feed card preview.
+
+![Post New Barter Listing Wizard](public/screenshots/post-listing.png)
+
+---
+
+### 4. 🤝 Offers & Swaps Hub with 6-Digit Handshake Settlement (`/offers`)
+End-to-end deal management with inbound and outbound negotiation cards, counter-offer rounds, Union Square Safe Kiosk indicator, and the physical in-person 6-digit handshake verification settlement interface (`849 · 215`) with QR code enlargement.
+
+![Offers Hub & Handshake Settlement](public/screenshots/offers-handshake.png)
+
+---
+
+### 5. 💬 Trade Negotiation Chat with In-Thread Deal Cards (`/messages`)
+Real-time polling chat engine featuring contextual active exchange agreements, quick-adjustment action chips (*Offer +$10 Cash*, *Suggest Meetup Zone*, *Swap Different Item*, *Request Condition Video*), and verified counter-offer states.
+
+![Trade Chat & Deal Cards](public/screenshots/chat-negotiation.png)
+
+---
+
+### 6. 📊 Item Management Desk / Dashboard (`/dashboard`)
+Comprehensive seller operations center featuring 4 Bento metric cards, 7-day listing view trends sparkline, Verified Trader Badge progression bar, and inventory status toggle desk.
+
+![Listing Management Desk](public/screenshots/management-desk.png)
+
+---
+
+### 7. ❤️ Saved Watchlist & Mutual Match Alerts (`/favorites`)
+Bookmark management with real-time valuation drop indicators, comparison tray launcher, and automated Mutual Match recommendation banners connecting wishlist items with user inventory.
+
+![Saved Listings & Bookmarks](public/screenshots/saved-favorites.png)
+
+---
+
+### 8. 👤 Public Trader Reputation & Trust Dossier (`/profile/:id`)
+Comprehensive trust scorecard displaying Level 4 Pioneer status, verified campus credentials (Student ID, 2FA, Meetup points), 3-axis reputation dimensions (*Condition*, *Punctuality*, *Fairness*), safe handshake monthly velocity chart, and dual-sided peer reviews.
+
+![Trader Reputation Dossier](public/screenshots/trader-reputation.png)
+
+---
+
+### 9. 🔐 Authentication & 1-Click Rapid Persona Switcher (`/login` & `/register`)
+Dual authentication hub featuring Barter Guarantee Standards with an instant 1-Click Rapid Persona Switcher enabling friction-free testing of both trade sides without manual credential entry.
+
+![Authentication & Persona Switcher](public/screenshots/auth-persona-switcher.png)
 
 ---
 
@@ -21,10 +100,12 @@ graph TD
   Compare["⚖️ Comparison Matrix (/compare)<br/>• Side-by-Side Analysis Table<br/>• Valuation & Condition Alignment<br/>• Safe Meetup & Direct CTAs"]
   Profile["👤 Trader Reputation (/profile/:id)<br/>• Trust Scorecard (100% Meets)<br/>• Verified Campus Badges<br/>• Completed Trades & Reviews"]
   Auth["🔐 Auth & Persona Sandbox (/login & /register)<br/>• 1-Click Rapid Persona Switcher<br/>• Barter Guarantee Standards<br/>• Secure Email / Password"]
+  DB["🗄️ Database & ER Workbench (/database)<br/>• 16 Model Inspector & Fields<br/>• Interactive ER & Cardinality Map<br/>• 13 Enums & Types Catalog<br/>• Multi-Table SQL Query Playground"]
 
   Home --> Browse
   Home --> NewListing
   Home --> Auth
+  Home --> DB
   Browse --> ListingDetail
   Browse --> Compare
   ListingDetail --> Offers
@@ -40,19 +121,20 @@ graph TD
 
 ## 📱 Detailed Screen Specifications
 
-| # | Screen / Route | Purpose | Key Modules |
-|---|---|---|---|
-| 1 | **Homepage** (`/`) | Main landing & discovery | Hero gradient, trending pills, featured trades grid, circular economy bento |
-| 2 | **Catalog** (`/listings`) | Faceted marketplace browse | Filter rail, valuation histogram, search, active filter chips, soft-modern cards |
-| 3 | **Post Barter** (`/listings/new`) | Listing creation wizard | 4-step wizard, adaptable book/tech specs, valuation slider, sticky live preview |
-| 4 | **Listing Detail** (`/listings/:id`) | Specifications & proposal launcher | Image gallery, barter wishlist, trade action CTAs, trader trust dossier |
-| 5 | **Offers & Swaps** (`/offers`) | Swap negotiation hub | 6-digit PIN verification banner, inbound/outbound tabs, deal cards |
-| 6 | **Trade Chats** (`/messages`) | Real-time negotiation chat | Polling chat engine, in-thread cash offer cards, barter proposal cards |
-| 7 | **Management Desk** (`/dashboard`) | Seller inventory & stats | 4 bento metric cards, views sparkline, inventory status toggles |
-| 8 | **Saved Listings** (`/favorites`) | Wishlist & match alert | Mutual match banner, saved cards, quick trade actions |
-| 9 | **Compare Matrix** (`/compare`) | Side-by-side analysis | Spec comparison table, valuation alignment, direct CTAs |
-| 10 | **Trader Reputation** (`/profile/:id`) | Public trust scorecard | Verification badges, 99.4% meetup rate, past reviews & trades |
-| 11 | **Authentication** (`/login` & `/register`) | Login & testing sandbox | 1-click Rapid Persona Switcher, guarantee standards cards, tab switcher |
+| # | Screen / Route | Purpose | Key Modules | UI Snapshot |
+|---|---|---|---|---|
+| 1 | **Homepage** (`/`) | Main landing & discovery | Hero gradient, trending pills, featured trades grid, circular economy bento | [Explore Catalog](#1--catalog--faceted-search-listings) |
+| 2 | **Catalog** (`/listings`) | Faceted marketplace browse | Filter rail, valuation histogram, search, active filter chips, soft-modern cards | [View Screen](#1--catalog--faceted-search-listings) |
+| 3 | **Post Barter** (`/listings/new`) | Listing creation wizard | 4-step wizard, adaptable book/tech specs, valuation slider, sticky live preview | [View Screen](#3--publish-barter-ad-wizard--live-preview-listingsnew) |
+| 4 | **Listing Detail** (`/listings/:id`) | Specifications & proposal launcher | Image gallery, barter wishlist, trade action CTAs, trader trust dossier | [View Screen](#2--listing-detail--interactive-barter-proposal-modal-listingsid) |
+| 5 | **Offers & Swaps** (`/offers`) | Swap negotiation hub | 6-digit PIN verification banner, inbound/outbound tabs, deal cards | [View Screen](#4--offers--swaps-hub-with-6-digit-handshake-settlement-offers) |
+| 6 | **Trade Chats** (`/messages`) | Real-time negotiation chat | Polling chat engine, in-thread cash offer cards, barter proposal cards | [View Screen](#5--trade-negotiation-chat-with-in-thread-deal-cards-messages) |
+| 7 | **Management Desk** (`/dashboard`) | Seller inventory & stats | 4 bento metric cards, views sparkline, inventory status toggles | [View Screen](#6--item-management-desk--dashboard-dashboard) |
+| 8 | **Saved Listings** (`/favorites`) | Wishlist & match alert | Mutual match banner, saved cards, quick trade actions | [View Screen](#7--saved-watchlist--mutual-match-alerts-favorites) |
+| 9 | **Compare Matrix** (`/compare`) | Side-by-side analysis | Spec comparison table, valuation alignment, direct CTAs | [Compare Flow](#1--catalog--faceted-search-listings) |
+| 10 | **Trader Reputation** (`/profile/:id`) | Public trust scorecard | Verification badges, 99.4% meetup rate, past reviews & trades | [View Screen](#8--public-trader-reputation--trust-dossier-profileid) |
+| 11 | **Authentication** (`/login` & `/register`) | Login & testing sandbox | 1-click Rapid Persona Switcher, guarantee standards cards, tab switcher | [View Screen](#9--authentication--1-click-rapid-persona-switcher-login--register) |
+| 12 | **Database & ER Workbench** (`/database`) | Relational architecture & queries | 16-model explorer, interactive ER clusters, 13 enums, production SQL query workbench | [Database Page](/database) |
 
 ---
 
@@ -158,15 +240,15 @@ Visit **[http://localhost:3000](http://localhost:3000)** in your browser.
 
 All demo accounts share the password: **`password123`**
 
-You can switch between these profiles with **1-click** on the `/login` screen:
+You can switch between these profiles with **1-click** on the `/login` screen via the [Rapid Persona Switcher](#9--authentication--1-click-rapid-persona-switcher-login--register):
 
-| Persona | Email | Focus & Role | Location | Completed Swaps |
-|---|---|---|---|---|
-| **Marcus Chen** | `marcus@example.com` | Tech & Electronics (Sony Headphones, Keychron) | San Francisco, CA | 14 Swaps |
-| **Alex Turner** | `alex@example.com` | Software Engineering & Tech Books | New York, NY | 19 Swaps |
-| **Sarah Jenkins** | `sarah@example.com` | Neuroscience & Medical Textbooks | Boston, MA | 18 Swaps |
-| **Elena Rostova** | `elena@example.com` | Computer Science Graduate Scholar | Austin, TX | 35 Swaps |
-| **David Miller** | `david@example.com` | Audio Engineer & Studio Gear | Seattle, WA | 6 Swaps |
+| Persona | Avatar | Email | Focus & Role | Location | Completed Swaps |
+|---|:---:|---|---|---|---|
+| **Marcus Chen** | <img src="public/screenshots/marcus-chen.png" width="40" height="40" style="border-radius:50%;" /> | `marcus@example.com` | Tech & Electronics (Sony Headphones, Keychron) | San Francisco, CA | 14 Swaps |
+| **Alex Turner** | 👤 | `alex@example.com` | Software Engineering & Tech Books | New York, NY | 19 Swaps |
+| **Sarah Jenkins** | 👤 | `sarah@example.com` | Neuroscience & Medical Textbooks | Boston, MA | 18 Swaps |
+| **Elena Rostova** | 👤 | `elena@example.com` | Computer Science Graduate Scholar | Austin, TX | 35 Swaps |
+| **David Miller** | 👤 | `david@example.com` | Audio Engineer & Studio Gear | Seattle, WA | 6 Swaps |
 
 ---
 

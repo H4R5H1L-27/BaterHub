@@ -24,23 +24,6 @@ export async function resolveUser(req: NextRequest) {
         },
       });
     }
-    if (!user) {
-      user = await prisma.user.findFirst({
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          avatar: true,
-          role: true,
-          city: true,
-          state: true,
-          reputationScore: true,
-          totalReviews: true,
-          totalTrades: true,
-          isVerified: true,
-        },
-      });
-    }
   }
   return user;
 }

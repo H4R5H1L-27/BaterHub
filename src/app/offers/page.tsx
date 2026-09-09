@@ -22,6 +22,7 @@ import ReviewModal from '@/components/review-modal';
 export default function OffersDashboardPage() {
   const [activeTab, setActiveTab] = useState<'RECEIVED_BARTERS' | 'SENT_BARTERS' | 'RECEIVED_OFFERS' | 'SENT_OFFERS'>('RECEIVED_BARTERS');
   
+  const [user, setUser] = useState<any>(null);
   const [receivedBarters, setReceivedBarters] = useState<BarterProposalItem[]>([]);
   const [sentBarters, setSentBarters] = useState<BarterProposalItem[]>([]);
   const [receivedOffers, setReceivedOffers] = useState<CashOfferItem[]>([]);
@@ -44,6 +45,22 @@ export default function OffersDashboardPage() {
   const fetchDashboardData = async () => {
     setLoading(true);
     try {
+      const authRes = await fetch('/api/auth/me');
+      if (authRes.ok) {
+        const uData = await authRes.json();
+        if (uData.user) {
+          setUser(uData.user);
+        } else {
+          setUser(null);
+          setLoading(false);
+          return;
+        }
+      } else {
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+
       const [bartersRes, offersRes] = await Promise.all([
         fetch('/api/barters'),
         fetch('/api/offers'),
@@ -123,24 +140,75 @@ export default function OffersDashboardPage() {
     setReviewModalOpen(true);
   };
 
-  return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      
-      {/* Header */}
   const [handshakePin, setHandshakePin] = useState('');
-  const [pinVerificationMsg, setPinVerificationMsg] = useState<string | null>(null);
+  const [pinVerificationMsg, setPinVerificationMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [verifyingPin, setVerifyingPin] = useState(false);
 
-  const handleVerifyHandshakePin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (handshakePin.length !== 6) {
-      setPinVerificationMsg('Please enter a valid 6-digit handshake PIN provided by the other trader.');
+  const handleVerifyHandshakePin = async (e?: React.FormEvent, pinToVerify?: string) => {
+    if (e) e.preventDefault();
+    const clean = (pinToVerify || handshakePin).trim().toUpperCase();
+    if (!clean) {
+      setPinVerificationMsg({
+        type: 'error',
+        text: 'Please enter the handshake PIN provided by the trader (e.g. TRD-8492).',
+      });
       return;
     }
-    // Simulate successful handshake verification
-    setPinVerificationMsg('Handshake PIN verified successfully! Trade status marked as completed.');
-    setHandshakePin('');
-    setTimeout(() => setPinVerificationMsg(null), 4000);
+
+    setVerifyingPin(true);
+    setPinVerificationMsg(null);
+
+    try {
+      const res = await fetch('/api/barters/verify-pin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pin: clean }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setPinVerificationMsg({
+          type: 'success',
+          text: data.message || 'Handshake PIN verified successfully! Trade status marked as completed.',
+        });
+        setHandshakePin('');
+        // Refresh dashboard data so the proposal updates to COMPLETED
+        fetchDashboardData();
+      } else {
+        setPinVerificationMsg({
+          type: 'error',
+          text: data.error || 'Failed to verify handshake PIN.',
+        });
+      }
+    } catch (err: any) {
+      setPinVerificationMsg({
+        type: 'error',
+        text: err?.message || 'Network error verifying handshake PIN.',
+      });
+    } finally {
+      setVerifyingPin(false);
+    }
   };
+
+  if (!loading && !user) {
+    return (
+      <div className="max-w-md mx-auto px-4 py-24 text-center space-y-4">
+        <div className="w-14 h-14 rounded-3xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto shadow-sm">
+          <Repeat className="w-7 h-7" />
+        </div>
+        <h2 className="text-xl font-bold text-gray-900">Sign in to view your offers & swaps</h2>
+        <p className="text-xs text-gray-500">
+          Your barter proposals, cash counter-offers, and in-person handshake verification PINs are protected and require signing in.
+        </p>
+        <Link
+          href="/login?redirect=/offers"
+          className="inline-block px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-bold hover:bg-indigo-700 transition-colors shadow-sm"
+        >
+          Sign In to View Offers
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -169,29 +237,48 @@ export default function OffersDashboardPage() {
           </div>
           <h3 className="font-extrabold text-lg text-on-surface">Enter Handshake PIN: Verify Swap Delivery</h3>
           <p className="text-xs text-on-surface-variant mt-1 max-w-lg">
-            When meeting in person, ask the trader for their 6-digit security code to verify handover and release mutual trust feedback.
+            When meeting in person, ask the trader for their verification handshake code (e.g. <strong className="font-mono text-primary">TRD-8492</strong>) to verify item delivery and mark the swap as completed.
           </p>
           {pinVerificationMsg && (
-            <p className="text-xs font-bold text-emerald-700 mt-2 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
-              {pinVerificationMsg}
-            </p>
+            <div
+              className={`text-xs font-bold mt-2 px-3.5 py-2 rounded-xl border flex items-center gap-2 ${
+                pinVerificationMsg.type === 'success'
+                  ? 'text-emerald-800 bg-emerald-50 border-emerald-300'
+                  : 'text-rose-800 bg-rose-50 border-rose-300'
+              }`}
+            >
+              {pinVerificationMsg.type === 'success' ? (
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              ) : (
+                <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+              )}
+              <span>{pinVerificationMsg.text}</span>
+            </div>
           )}
         </div>
 
-        <form onSubmit={handleVerifyHandshakePin} className="flex items-center gap-2 w-full md:w-auto">
+        <form onSubmit={(e) => handleVerifyHandshakePin(e)} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto">
           <input
             type="text"
-            maxLength={6}
-            placeholder="6-digit PIN"
+            maxLength={12}
+            placeholder="e.g. TRD-8492"
             value={handshakePin}
-            onChange={(e) => setHandshakePin(e.target.value.replace(/\D/g, ''))}
-            className="w-32 h-11 px-3 bg-surface-container-lowest border border-outline-variant/50 rounded-full text-center font-mono text-base font-bold tracking-widest text-on-surface focus:outline-none focus:border-primary shadow-inner"
+            onChange={(e) => setHandshakePin(e.target.value.toUpperCase())}
+            className="w-full sm:w-44 h-11 px-4 bg-surface-container-lowest border border-outline-variant/50 rounded-full text-center font-mono text-sm font-bold tracking-wider text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-inner uppercase"
           />
           <button
             type="submit"
-            className="h-11 px-5 rounded-full bg-primary hover:bg-primary-container text-white text-xs font-bold shadow-lift transition-all shrink-0"
+            disabled={verifyingPin || !handshakePin.trim()}
+            className="h-11 px-6 rounded-full bg-primary hover:bg-primary-container disabled:opacity-50 text-white text-xs font-bold shadow-lift transition-all shrink-0 flex items-center justify-center gap-2"
           >
-            Verify Handshake
+            {verifyingPin ? (
+              <>
+                <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span>Verifying...</span>
+              </>
+            ) : (
+              <span>Verify Handshake</span>
+            )}
           </button>
         </form>
       </div>
@@ -356,9 +443,22 @@ export default function OffersDashboardPage() {
                         <p className="text-xs font-bold text-emerald-900">Exchange Verification Code</p>
                         <p className="text-xs text-emerald-700 mt-0.5">Share and verify this code during in-person physical meetup.</p>
                       </div>
-                      <span className="px-4 py-1.5 bg-emerald-600 text-white font-mono font-black text-sm rounded-lg shadow-sm">
-                        {proposal.exchangeCode}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="px-3.5 py-1.5 bg-emerald-600 text-white font-mono font-black text-sm rounded-lg shadow-sm">
+                          {proposal.exchangeCode}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setHandshakePin(proposal.exchangeCode!);
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                          }}
+                          className="px-2.5 py-1.5 bg-white hover:bg-emerald-100 text-emerald-800 font-bold text-xs rounded-lg border border-emerald-300 shadow-2xs transition-colors"
+                          title="Fill this code into the handshake verification box above"
+                        >
+                          Auto-Fill
+                        </button>
+                      </div>
                     </div>
                   )}
 
@@ -448,10 +548,24 @@ export default function OffersDashboardPage() {
                     </div>
                   </div>
 
-                  {proposal.exchangeCode && (
+                  {proposal.exchangeCode && proposal.status !== 'COMPLETED' && (
                     <div className="p-3 bg-emerald-50 rounded-xl text-xs text-emerald-800 flex items-center justify-between">
-                      <span>Meetup Verification Code:</span>
-                      <strong className="font-mono font-bold text-sm">{proposal.exchangeCode}</strong>
+                      <div className="flex items-center gap-2">
+                        <span>Meetup Verification Code:</span>
+                        <strong className="font-mono font-bold text-sm bg-white px-2 py-0.5 rounded border border-emerald-200">
+                          {proposal.exchangeCode}
+                        </strong>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setHandshakePin(proposal.exchangeCode!);
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
+                        className="px-2.5 py-1 bg-white hover:bg-emerald-100 text-emerald-800 font-bold text-xs rounded-lg border border-emerald-300 shadow-2xs transition-colors"
+                      >
+                        Auto-Fill
+                      </button>
                     </div>
                   )}
 
